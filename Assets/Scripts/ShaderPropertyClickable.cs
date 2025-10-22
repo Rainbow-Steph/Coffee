@@ -7,13 +7,13 @@ using UnityEngine;
 /// </summary>
 public class ShaderPropertyClickable : ClickableObject
 {
-    [Header("Shader Property Settings")]
+  [Header("Shader Property Settings")]
     [Tooltip("Rim intensity when hovering")]
     [Range(0, 10)]
     public float hoverRimIntensity = 5.0f;
     
-    [Tooltip("Rim color when hovering")]
-    public Color hoverRimColor = new Color(1, 0.5f, 0, 1);
+  [Tooltip("Rim color when hovering")]
+ public Color hoverRimColor = new Color(1, 0.5f, 0, 1);
   
     [Tooltip("Use outline intensity property (for OutlineHighlight shader)")]
     public bool useOutlineIntensity = false;
@@ -22,115 +22,115 @@ public class ShaderPropertyClickable : ClickableObject
     [Range(0, 5)]
     public float hoverOutlineIntensity = 3.0f;
     
-  private Material materialInstance;
+    private Material shaderMaterialInstance;
     private float originalRimIntensity = 0f;
-  private float originalOutlineIntensity = 0f;
+    private float originalOutlineIntensity = 0f;
     private Color originalRimColor;
     private bool hasRimProperties = false;
-    private bool hasOutlineProperties = false;
+  private bool hasOutlineProperties = false;
     
     void Start()
     {
-   Renderer rend = GetComponent<Renderer>();
+        Renderer rend = GetComponent<Renderer>();
         if (rend != null)
-     {
-       // Create material instance to avoid modifying shared material
-        materialInstance = rend.material;
-   
-       // Check which properties the shader has
-        hasRimProperties = materialInstance.HasProperty("_RimIntensity") && 
-         materialInstance.HasProperty("_RimColor");
-            
-    hasOutlineProperties = materialInstance.HasProperty("_OutlineIntensity") && 
-          materialInstance.HasProperty("_OutlineColor");
-       
-       // Store original values
-        if (hasRimProperties)
       {
-          originalRimIntensity = materialInstance.GetFloat("_RimIntensity");
-      originalRimColor = materialInstance.GetColor("_RimColor");
+            // Create material instance to avoid modifying shared material
+ shaderMaterialInstance = rend.material;
+   
+  // Check which properties the shader has
+      hasRimProperties = shaderMaterialInstance.HasProperty("_RimIntensity") && 
+                shaderMaterialInstance.HasProperty("_RimColor");
+      
+            hasOutlineProperties = shaderMaterialInstance.HasProperty("_OutlineIntensity") && 
+            shaderMaterialInstance.HasProperty("_OutlineColor");
+    
+ // Store original values
+  if (hasRimProperties)
+            {
+    originalRimIntensity = shaderMaterialInstance.GetFloat("_RimIntensity");
+                originalRimColor = shaderMaterialInstance.GetColor("_RimColor");
         
-  // Set initial rim intensity to 0 (no outline when not hovering)
-            materialInstance.SetFloat("_RimIntensity", 0f);
-       }
-            
+             // Set initial rim intensity to 0 (no outline when not hovering)
+     shaderMaterialInstance.SetFloat("_RimIntensity", 0f);
+            }
+ 
             if (hasOutlineProperties && useOutlineIntensity)
         {
-       originalOutlineIntensity = materialInstance.GetFloat("_OutlineIntensity");
+       originalOutlineIntensity = shaderMaterialInstance.GetFloat("_OutlineIntensity");
     
-         // Set initial outline intensity to 0
-           materialInstance.SetFloat("_OutlineIntensity", 0f);
-}
-            
+     // Set initial outline intensity to 0
+            shaderMaterialInstance.SetFloat("_OutlineIntensity", 0f);
+            }
+        
        if (showDebugInfo)
-      {
-    Debug.Log($"ShaderPropertyClickable on {gameObject.name}: " +
-        $"Rim properties: {hasRimProperties}, Outline properties: {hasOutlineProperties}");
-       }
- }
-        else
-  {
-       Debug.LogWarning($"ShaderPropertyClickable on {gameObject.name}: No Renderer component found!");
-     }
+        {
+     Debug.Log($"ShaderPropertyClickable on {gameObject.name}: " +
+         $"Rim properties: {hasRimProperties}, Outline properties: {hasOutlineProperties}");
+            }
+        }
+  else
+        {
+            Debug.LogWarning($"ShaderPropertyClickable on {gameObject.name}: No Renderer component found!");
+        }
     }
     
     /// <summary>
-    /// Called when mouse enters - activates outline by changing shader properties
+  /// Called when mouse enters - activates outline by changing shader properties
     /// </summary>
     public override void OnHoverEnter()
     {
-        if (materialInstance != null)
+    if (shaderMaterialInstance != null)
         {
-    // Set rim properties
-            if (hasRimProperties)
-  {
-   materialInstance.SetFloat("_RimIntensity", hoverRimIntensity);
-       materialInstance.SetColor("_RimColor", hoverRimColor);
-     }
+            // Set rim properties
+     if (hasRimProperties)
+            {
+    shaderMaterialInstance.SetFloat("_RimIntensity", hoverRimIntensity);
+         shaderMaterialInstance.SetColor("_RimColor", hoverRimColor);
+            }
 
-       // Set outline properties
- if (hasOutlineProperties && useOutlineIntensity)
-         {
-         materialInstance.SetFloat("_OutlineIntensity", hoverOutlineIntensity);
-         materialInstance.SetColor("_OutlineColor", hoverRimColor);
-  }
+ // Set outline properties
+            if (hasOutlineProperties && useOutlineIntensity)
+            {
+        shaderMaterialInstance.SetFloat("_OutlineIntensity", hoverOutlineIntensity);
+           shaderMaterialInstance.SetColor("_OutlineColor", hoverRimColor);
+     }
   
-         if (showDebugInfo)
-   {
-  Debug.Log($"ShaderPropertyClickable: {gameObject.name} - Outline activated");
-       }
-   }
+            if (showDebugInfo)
+         {
+           Debug.Log($"ShaderPropertyClickable: {gameObject.name} - Outline activated");
+            }
+        }
    
         // Don't call base.OnHoverEnter() to avoid default color change
     }
     
     /// <summary>
     /// Called when mouse exits - deactivates outline by resetting shader properties
-    /// </summary>
+  /// </summary>
     public override void OnHoverExit()
     {
-    if (materialInstance != null)
+        if (shaderMaterialInstance != null)
         {
-       // Restore rim properties
-     if (hasRimProperties)
-  {
-      materialInstance.SetFloat("_RimIntensity", 0f);
-         materialInstance.SetColor("_RimColor", originalRimColor);
-     }
- 
-      // Restore outline properties
-       if (hasOutlineProperties && useOutlineIntensity)
-  {
-       materialInstance.SetFloat("_OutlineIntensity", 0f);
+   // Restore rim properties
+   if (hasRimProperties)
+         {
+      shaderMaterialInstance.SetFloat("_RimIntensity", 0f);
+     shaderMaterialInstance.SetColor("_RimColor", originalRimColor);
             }
  
-    if (showDebugInfo)
- {
-    Debug.Log($"ShaderPropertyClickable: {gameObject.name} - Outline deactivated");
-            }
-     }
+       // Restore outline properties
+          if (hasOutlineProperties && useOutlineIntensity)
+{
+    shaderMaterialInstance.SetFloat("_OutlineIntensity", 0f);
+  }
+ 
+            if (showDebugInfo)
+            {
+Debug.Log($"ShaderPropertyClickable: {gameObject.name} - Outline deactivated");
+         }
+      }
   
-    // Don't call base.OnHoverExit() to avoid default color change
+        // Don't call base.OnHoverExit() to avoid default color change
     }
  
     /// <summary>
@@ -139,14 +139,14 @@ public class ShaderPropertyClickable : ClickableObject
     /// <param name="active">True to show outline, false to hide</param>
     public void SetOutlineActive(bool active)
     {
-   if (active)
+        if (active)
         {
-        OnHoverEnter();
-      }
-      else
+    OnHoverEnter();
+        }
+        else
         {
-       OnHoverExit();
- }
+OnHoverExit();
+        }
     }
     
     /// <summary>
@@ -154,44 +154,44 @@ public class ShaderPropertyClickable : ClickableObject
     /// </summary>
     public void SetOutlineColor(Color color)
     {
-     hoverRimColor = color;
-        if (materialInstance != null && (hasRimProperties || hasOutlineProperties))
-        {
+        hoverRimColor = color;
+        if (shaderMaterialInstance != null && (hasRimProperties || hasOutlineProperties))
+     {
        if (hasRimProperties)
-      {
-            materialInstance.SetColor("_RimColor", color);
+{
+    shaderMaterialInstance.SetColor("_RimColor", color);
+            }
+      if (hasOutlineProperties)
+     {
+    shaderMaterialInstance.SetColor("_OutlineColor", color);
+          }
       }
-            if (hasOutlineProperties)
-            {
-       materialInstance.SetColor("_OutlineColor", color);
-}
     }
-    }
-    
- /// <summary>
+  
+    /// <summary>
     /// Set custom outline intensity at runtime
     /// </summary>
     public void SetOutlineIntensity(float intensity)
     {
         hoverRimIntensity = Mathf.Clamp(intensity, 0f, 10f);
-        if (materialInstance != null && hasRimProperties)
+        if (shaderMaterialInstance != null && hasRimProperties)
         {
-      materialInstance.SetFloat("_RimIntensity", hoverRimIntensity);
+   shaderMaterialInstance.SetFloat("_RimIntensity", hoverRimIntensity);
         }
     }
     
     /// <summary>
     /// Clean up resources when object is destroyed
-    /// </summary>
+  /// </summary>
     protected override void OnDestroy()
     {
         // Clean up material instance
-        if (materialInstance != null)
+    if (shaderMaterialInstance != null)
         {
-         Destroy(materialInstance);
-        }
-        
+            Destroy(shaderMaterialInstance);
+ }
+
         // Call base OnDestroy
         base.OnDestroy();
-}
+    }
 }

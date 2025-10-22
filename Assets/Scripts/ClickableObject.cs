@@ -4,6 +4,7 @@ using UnityEngine.Events;
 /// <summary>
 /// Component to add to objects that should react to being clicked by the CameraRaycaster.
 /// Attach this to any GameObject with a Collider that you want to be clickable.
+/// Supports standard color highlighting and outline-based highlighting.
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class ClickableObject : MonoBehaviour
@@ -11,18 +12,18 @@ public class ClickableObject : MonoBehaviour
     // Static variables to track currently held item across all instances
     private static ClickableObject currentlyHeldObject = null;
     
- /// <summary>
+    /// <summary>
     /// Public static property to get the name of the currently held item (empty string if none)
-    /// </summary>
+  /// </summary>
     public static string HeldItemName
-  {
-   get
-        {
-     if (currentlyHeldObject != null)
-          {
-         return currentlyHeldObject.gameObject.name;
+    {
+    get
+    {
+            if (currentlyHeldObject != null)
+            {
+      return currentlyHeldObject.gameObject.name;
             }
-            return string.Empty;
+          return string.Empty;
         }
   }
     
@@ -38,15 +39,23 @@ public class ClickableObject : MonoBehaviour
     /// Public static method to get reference to the currently held object
     /// </summary>
     public static ClickableObject GetHeldObject()
-  {
-        return currentlyHeldObject;
+    {
+    return currentlyHeldObject;
+    }
+    
+    // Highlight mode enum
+public enum HighlightMode
+    {
+        ColorChange,        // Standard color/emission change
+   OutlineMaterial,    // Swap to outline material
+        Disabled         // No highlighting
     }
     
     [Header("Click Response")]
     [Tooltip("Event triggered when this object is clicked")]
     public UnityEvent onClickEvent;
     
-[Header("Visual Feedback")]
+    [Header("Visual Feedback")]
     [Tooltip("Change color on click (requires Renderer component)")]
     public bool changeColorOnClick = false;
     
@@ -57,19 +66,23 @@ public class ClickableObject : MonoBehaviour
     public float colorChangeDuration = 0.5f;
     
     [Header("Hover Highlight")]
-    [Tooltip("Highlight object while mouse is hovering over it")]
-    public bool highlightOnHover = true;
-    
-    [Tooltip("Color to use for hover highlight")]
+    [Tooltip("Highlight mode: ColorChange (standard), OutlineMaterial (swap material), or Disabled")]
+    public HighlightMode highlightMode = HighlightMode.ColorChange;
+ 
+    [Tooltip("Color to use for hover highlight (ColorChange mode only)")]
     public Color hoverColor = new Color(1f, 0.8f, 0.4f, 1f); // Light orange
     
-    [Tooltip("Emission intensity for hover highlight (makes it glow)")]
+    [Tooltip("Emission intensity for hover highlight (ColorChange mode only)")]
     [Range(0f, 5f)]
     public float hoverEmissionIntensity = 0.5f;
     
-    [Tooltip("Use emission for hover effect (makes object glow)")]
+    [Tooltip("Use emission for hover effect (ColorChange mode only)")]
     public bool useEmission = true;
- 
+    
+    [Header("Outline Highlight Settings")]
+    [Tooltip("Material to use when hovering (OutlineMaterial mode only)")]
+    public Material outlineMaterial;
+    
     [Header("Float Behavior")]
     [Tooltip("Make object float in front of camera when clicked")]
     public bool floatOnClick = false;
@@ -89,12 +102,12 @@ public class ClickableObject : MonoBehaviour
     [Tooltip("Offset from center of camera view (up/down/left/right)")]
     public Vector3 floatOffset = Vector3.zero;
     
-    [Header("Audio Feedback")]
+[Header("Audio Feedback")]
     [Tooltip("Play a sound on click (requires AudioSource component)")]
     public bool playSoundOnClick = false;
     
     [Tooltip("AudioClip to play when clicked")]
-    public AudioClip clickSound;
+ public AudioClip clickSound;
     
     [Header("Debug")]
     [Tooltip("Show debug messages in console")]
@@ -102,8 +115,9 @@ public class ClickableObject : MonoBehaviour
     
     private Renderer objectRenderer;
     private Material materialInstance;
+    private Material originalMaterial;
     private Color originalColor;
-    private Color originalEmissionColor;
+ private Color originalEmissionColor;
     private AudioSource audioSource;
     private bool isChangingColor = false;
     private bool isHovering = false;
@@ -111,76 +125,96 @@ public class ClickableObject : MonoBehaviour
     
     // Float behavior variables
     private bool isFloating = false;
-    private Vector3 pickupPosition;  // Position when object was picked up
-    private Quaternion pickupRotation;  // Rotation when object was picked up
-    private Vector3 originalPosition;  // Original spawn position
-    private Quaternion originalRotation;  // Original spawn rotation
-  private Transform originalParent;
+    private Vector3 pickupPosition;
+    private Quaternion pickupRotation;
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
+    private Transform originalParent;
     private Camera mainCamera;
-private Collider objectCollider;
-    private Quaternion floatingRotationOffset;  // Applied rotation offset during float
+    private Collider objectCollider;
+  private Quaternion floatingRotationOffset;  // Applied rotation offset during float
     
     void Start()
     {
-   // Get the Renderer component if we need to change colors
-        if (changeColorOnClick || highlightOnHover)
+        // Get the Renderer component
+        objectRenderer = GetComponent<Renderer>();
+        
+        // Setup for ColorChange mode
+        if (highlightMode == HighlightMode.ColorChange && (changeColorOnClick || highlightMode != HighlightMode.Disabled))
         {
- objectRenderer = GetComponent<Renderer>();
-          if (objectRenderer != null && objectRenderer.material != null)
-          {
-     // Create a material instance to avoid modifying the shared material
-           materialInstance = objectRenderer.material;
- originalColor = materialInstance.color;
-    
-                // Check if material supports emission
-   if (materialInstance.HasProperty("_EmissionColor"))
-    {
-    hasEmission = true;
-           originalEmissionColor = materialInstance.GetColor("_EmissionColor");
-   }
+    if (objectRenderer != null && objectRenderer.material != null)
+      {
+  // Create a material instance to avoid modifying the shared material
+        materialInstance = objectRenderer.material;
+    originalColor = materialInstance.color;
+  
+        // Check if material supports emission
+     if (materialInstance.HasProperty("_EmissionColor"))
+  {
+      hasEmission = true;
+         originalEmissionColor = materialInstance.GetColor("_EmissionColor");
+        }
       
          // Enable emission keyword if using emission
-    if (useEmission && hasEmission && highlightOnHover)
-        {
-       materialInstance.EnableKeyword("_EMISSION");
-  }
-       }
-     else if (showDebugInfo)
-        {
-      Debug.LogWarning($"ClickableObject on {gameObject.name}: Visual feedback enabled but no Renderer found.");
+      if (useEmission && hasEmission && highlightMode == HighlightMode.ColorChange)
+    {
+      materialInstance.EnableKeyword("_EMISSION");
             }
+      }
+ else if (showDebugInfo)
+       {
+   Debug.LogWarning($"ClickableObject on {gameObject.name}: Visual feedback enabled but no Renderer found.");
+      }
+}
+        
+     // Setup for OutlineMaterial mode
+        if (highlightMode == HighlightMode.OutlineMaterial)
+        {
+    if (objectRenderer != null)
+     {
+originalMaterial = objectRenderer.sharedMaterial;
+          }
+  else
+     {
+           Debug.LogWarning($"ClickableObject on {gameObject.name}: OutlineMaterial mode enabled but no Renderer found!");
+      }
+     
+            if (outlineMaterial == null && showDebugInfo)
+            {
+Debug.LogWarning($"ClickableObject on {gameObject.name}: OutlineMaterial mode enabled but no outline material assigned!");
         }
+ }
         
         // Get or add AudioSource if we need to play sounds
-  if (playSoundOnClick)
-    {
-            audioSource = GetComponent<AudioSource>();
-       if (audioSource == null)
-          {
-           audioSource = gameObject.AddComponent<AudioSource>();
-            }
-    audioSource.playOnAwake = false;
-        }
-        
- // Ensure the object has a collider
-        objectCollider = GetComponent<Collider>();
-  if (objectCollider == null)
+    if (playSoundOnClick)
         {
-  Debug.LogError($"ClickableObject on {gameObject.name}: No Collider component found! This object cannot be clicked.");
+    audioSource = GetComponent<AudioSource>();
+      if (audioSource == null)
+   {
+      audioSource = gameObject.AddComponent<AudioSource>();
+   }
+          audioSource.playOnAwake = false;
+        }
+ 
+        // Ensure the object has a collider
+      objectCollider = GetComponent<Collider>();
+        if (objectCollider == null)
+    {
+    Debug.LogError($"ClickableObject on {gameObject.name}: No Collider component found! This object cannot be clicked.");
   }
         
         // Store original transform information
         originalPosition = transform.position;
-     originalRotation = transform.rotation;
-     originalParent = transform.parent;
-        
-        // Find main camera
+        originalRotation = transform.rotation;
+   originalParent = transform.parent;
+   
+      // Find main camera
         mainCamera = Camera.main;
         if (mainCamera == null && floatOnClick)
-        {
+    {
          Debug.LogWarning($"ClickableObject on {gameObject.name}: floatOnClick is enabled but no Main Camera found!");
-        }
-    }
+   }
+ }
  
     void Update()
     {
@@ -220,26 +254,43 @@ private Collider objectCollider;
     /// </summary>
     public virtual void OnHoverEnter()
     {
-        if (!highlightOnHover || isHovering) return;
+        if (highlightMode == HighlightMode.Disabled || isHovering) return;
 
         isHovering = true;
-        
-    if (showDebugInfo)
-        {
-      Debug.Log($"ClickableObject: Mouse entered {gameObject.name}");
-  }
       
-      if (materialInstance != null && !isChangingColor)
-      {
-            // Apply hover color
-        materialInstance.color = hoverColor;
-        
-      // Apply emission if enabled
-            if (useEmission && hasEmission)
-  {
-       Color emissionColor = hoverColor * hoverEmissionIntensity;
-                materialInstance.SetColor("_EmissionColor", emissionColor);
+      if (showDebugInfo)
+        {
+   Debug.Log($"ClickableObject: Mouse entered {gameObject.name}");
+        }
+      
+        // Handle ColorChange mode
+        if (highlightMode == HighlightMode.ColorChange)
+     {
+   if (materialInstance != null && !isChangingColor)
+          {
+      // Apply hover color
+  materialInstance.color = hoverColor;
+      
+     // Apply emission if enabled
+         if (useEmission && hasEmission)
+       {
+         Color emissionColor = hoverColor * hoverEmissionIntensity;
+ materialInstance.SetColor("_EmissionColor", emissionColor);
+   }
+   }
+  }
+        // Handle OutlineMaterial mode
+  else if (highlightMode == HighlightMode.OutlineMaterial)
+   {
+       if (objectRenderer != null && outlineMaterial != null)
+        {
+     objectRenderer.material = outlineMaterial;
+   
+      if (showDebugInfo)
+        {
+        Debug.Log($"ClickableObject: {gameObject.name} - Outline material applied");
             }
+   }
         }
     }
     
@@ -248,26 +299,43 @@ private Collider objectCollider;
     /// </summary>
     public virtual void OnHoverExit()
     {
-        if (!isHovering) return;
-        
-    isHovering = false;
+  if (!isHovering) return;
+ 
+        isHovering = false;
       
-        if (showDebugInfo)
+   if (showDebugInfo)
         {
-            Debug.Log($"ClickableObject: Mouse exited {gameObject.name}");
-}
+       Debug.Log($"ClickableObject: Mouse exited {gameObject.name}");
+        }
      
-        if (materialInstance != null && !isChangingColor)
+        // Handle ColorChange mode
+   if (highlightMode == HighlightMode.ColorChange)
+   {
+       if (materialInstance != null && !isChangingColor)
         {
-            // Restore original color
-      materialInstance.color = originalColor;
-       
-         // Restore original emission
-        if (useEmission && hasEmission)
-     {
-           materialInstance.SetColor("_EmissionColor", originalEmissionColor);
-}
-   }
+        // Restore original color
+    materialInstance.color = originalColor;
+            
+// Restore original emission
+          if (useEmission && hasEmission)
+    {
+                materialInstance.SetColor("_EmissionColor", originalEmissionColor);
+ }
+            }
+    }
+// Handle OutlineMaterial mode
+        else if (highlightMode == HighlightMode.OutlineMaterial)
+  {
+  if (objectRenderer != null && originalMaterial != null)
+   {
+       objectRenderer.material = originalMaterial;
+  
+       if (showDebugInfo)
+    {
+     Debug.Log($"ClickableObject: {gameObject.name} - Original material restored");
+            }
+    }
+        }
     }
     
     /// <summary>
@@ -452,7 +520,7 @@ private Collider objectCollider;
         yield return new WaitForSeconds(colorChangeDuration);
         
    // Restore to hover color if still hovering, otherwise original color
- if (isHovering && highlightOnHover)
+ if (isHovering && highlightMode != HighlightMode.Disabled)
         {
      materialInstance.color = hoverColor;
                 if (useEmission && hasEmission)
@@ -475,13 +543,30 @@ private Collider objectCollider;
     }
     
     /// <summary>
- /// Public method to simulate a click programmatically
-    /// </summary>
-    public void SimulateClick()
+    /// Public method to manually set outline state (for OutlineMaterial mode)
+ /// </summary>
+    public void SetOutlineActive(bool active)
     {
-        RaycastHit simulatedHit = new RaycastHit();
-        OnClicked(simulatedHit);
+   if (highlightMode != HighlightMode.OutlineMaterial) return;
+        
+        if (active)
+        {
+      OnHoverEnter();
+     }
+ else
+        {
+            OnHoverExit();
+     }
     }
+    
+    /// <summary>
+    /// Public method to simulate a click programmatically
+    /// </summary>
+public void SimulateClick()
+    {
+     RaycastHit simulatedHit = new RaycastHit();
+        OnClicked(simulatedHit);
+ }
     
     /// <summary>
     /// Public method to force return to original position
@@ -496,19 +581,28 @@ private Collider objectCollider;
     
     /// <summary>
     /// Clean up resources when object is destroyed
-/// </summary>
+    /// </summary>
     protected virtual void OnDestroy()
     {
-    // Clean up material instance
-   if (materialInstance != null)
+        // Clean up material instance (ColorChange mode)
+    if (materialInstance != null)
         {
-         Destroy(materialInstance);
- }
+ Destroy(materialInstance);
+        }
     
-        // Clear the held object reference if this object is being destroyed while held
-        if (currentlyHeldObject == this)
+    // Clean up any extra material instances (OutlineMaterial mode)
+    if (highlightMode == HighlightMode.OutlineMaterial && objectRenderer != null)
         {
-    currentlyHeldObject = null;
-   }
+   if (objectRenderer.material != originalMaterial && objectRenderer.material != outlineMaterial)
+       {
+     Destroy(objectRenderer.material);
+            }
+     }
+
+        // Clear the held object reference if this object is being destroyed while held
+  if (currentlyHeldObject == this)
+      {
+      currentlyHeldObject = null;
+ }
     }
 }
