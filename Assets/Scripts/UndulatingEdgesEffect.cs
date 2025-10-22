@@ -10,7 +10,7 @@ public class UndulatingEdgesEffect : MonoBehaviour
 {
     [Header("Wave Settings")]
   [Tooltip("How far the waves distort (0-0.1)")]
-    [Range(0f, 0.1f)]
+    [Range(0f, 5f)]
     public float amplitude = 0.02f;
     
     [Tooltip("Number of waves (0-50)")]

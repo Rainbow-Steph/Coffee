@@ -6,7 +6,7 @@ Shader "Custom/UI/UndulatingEdges"
         _Color ("Tint", Color) = (1,1,1,1)
 
     [Header(Wave Settings)]
- _Amplitude ("Wave Amplitude", Range(0, 0.1)) = 0.02
+ _Amplitude ("Wave Amplitude", Range(0, 5)) = 0.02
         _Frequency ("Wave Frequency", Range(0, 50)) = 10
    _Speed ("Wave Speed", Range(-10, 10)) = 2
         

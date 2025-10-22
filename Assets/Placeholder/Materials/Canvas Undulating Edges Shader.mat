@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Canvas Edges Shader
+  m_Name: Canvas Undulating Edges Shader
   m_Shader: {fileID: 4800000, guid: 495d4158c440c2645a0159176c5a5c22, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -61,7 +61,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Amplitude: 0.1
+    - _Amplitude: 2.77
     - _BumpScale: 1
     - _ColorMask: 15
     - _Cutoff: 0.5
@@ -69,7 +69,7 @@ Material:
     - _DstBlend: 0
     - _EdgeSoftness: 0.033
     - _EdgeWidth: 0.051
-    - _Frequency: 10
+    - _Frequency: 48
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -79,7 +79,7 @@ Material:
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Speed: 2
+    - _Speed: 2.97
     - _SrcBlend: 1
     - _Stencil: 0
     - _StencilComp: 8
