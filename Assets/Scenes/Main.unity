@@ -3811,7 +3811,7 @@ MonoBehaviour:
   changeColorOnClick: 0
   clickColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorChangeDuration: 0.5
-  highlightMode: 0
+  highlightMode: 2
   hoverColor: {r: 1, g: 0.8, b: 0.4, a: 1}
   hoverEmissionIntensity: 0.5
   useEmission: 1

@@ -58,20 +58,36 @@ The hover system provides multiple modes for visual feedback:
 
 2. **OutlineMaterial Mode**
    - Swaps to a separate outline material when hovering
-   - Best for outline-only highlighting effects
+   - Replaces the original material completely
    - Requires outline material assignment (use Custom/OutlineHighlight or Custom/RimOutlineHighlight shaders)
    - See `Assets/Shaders/OUTLINE_SHADERS_GUIDE.md` for shader details
 
-3. **Disabled Mode**
+3. **OutlineOverlay Mode** (NEW!)
+   - Adds outline material ON TOP of the original material
+   - Original material stays visible with outline rendered over it
+   - Best of both worlds: keep texture/details + outline effect
+   - Requires outline material with transparency/overlay shader
+   - Works with Custom/OutlineHighlight shader (set to render as overlay)
+
+4. **Disabled Mode**
    - No hover highlighting
    - Useful when you only want click responses
 
 **Setup for Outline Mode:**
 1. Create material with outline shader (`Custom/OutlineHighlight` or `Custom/RimOutlineHighlight`)
 2. Select your ClickableObject
-3. Set "Highlight Mode" to "OutlineMaterial"
+3. Set "Highlight Mode" to:
+   - "OutlineMaterial" to replace the material (outline only)
+   - "OutlineOverlay" to add outline over existing material (NEW!)
 4. Assign the outline material to "Outline Material" field
 5. Test - object should show outline on hover!
+
+**Setup for OutlineOverlay (Recommended for Best Results):**
+1. Create material with `Custom/OutlineHighlight` shader
+2. Configure outline color, width, and intensity
+3. Set Highlight Mode to "OutlineOverlay"
+4. Assign outline material
+5. Original material textures/colors stay visible with outline on top!
 
 **Alternative: ShaderPropertyClickable**
 - For property-based outline highlighting (better performance)
