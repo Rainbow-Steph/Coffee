@@ -75,17 +75,30 @@ Add this component to any GameObject you want to make clickable.
 
 ### UI Setup (Display Held Item Name)
 
-To show the held item name on screen:
+To show the held item name on screen, you need to manually set up the HeldItemDisplay component:
 
-1. **Automatic Setup (Recommended):**
-   - Open the Main scene in Unity
-   - Go to: **Tools > Setup Held Item Display** (or Center variant)
-   - Done! The UI text is created and configured automatically
- 
-2. **Manual Setup:**
-   - See [SETUP_GUIDE.md](SETUP_GUIDE.md) for detailed instructions
+**Manual Setup:**
+1. **Create a UI Text element:**
+   - Right-click on Canvas in Hierarchy ? UI ? Text (for Unity UI Text)
+   - Or: Right-click on Canvas ? UI ? Text - TextMeshPro (for TextMeshPro)
+
+2. **Add HeldItemDisplay component:**
+   - Select the Text object you just created
+   - Add Component ? HeldItemDisplay
+   - The component will automatically detect the Text or TextMeshPro component
+
+3. **Configure (optional):**
+   - Adjust the prefix text (default: "Holding: ")
+   - Set empty text (default: "No item held")
+   - Enable "Hide When Empty" if desired
+
+4. **Position the text:**
+   - Use the RectTransform to position it where you want on screen
+   - Common positions: top-left corner, bottom-center, etc.
 
 The UI will automatically update to show the name of any held item!
+
+**Note:** The HeldItemDisplay component supports both Unity UI Text and TextMeshPro components. It will automatically detect which one you're using.
 
 ### Float Behavior
 
