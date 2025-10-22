@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 121532364}
   - component: {fileID: 121532363}
   - component: {fileID: 121532362}
+  - component: {fileID: 121532366}
   m_Layer: 0
   m_Name: Cup (1)
   m_TagString: Untagged
@@ -229,6 +230,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 787135635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &121532366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121532361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aede2bdfa3148834bbb52558f9b05011, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onClickEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  changeColorOnClick: 0
+  clickColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorChangeDuration: 0.5
+  highlightOnHover: 1
+  hoverColor: {r: 1, g: 0.8, b: 0.4, a: 1}
+  hoverEmissionIntensity: 0.5
+  useEmission: 1
+  floatOnClick: 1
+  floatDistance: 0.75
+  floatSpeed: 5
+  rotationSpeed: 50
+  rotationOffset: {x: 30, y: 5, z: 0}
+  floatOffset: {x: 0.25, y: 0, z: 0}
+  playSoundOnClick: 0
+  clickSound: {fileID: 0}
+  showDebugInfo: 0
 --- !u!1001 &217751968
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -535,6 +567,102 @@ Transform:
   m_Children: []
   m_Father: {fileID: 709962604}
   m_LocalEulerAnglesHint: {x: 0, y: -26.474, z: 0}
+--- !u!1 &233623596
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 233623597}
+  - component: {fileID: 233623600}
+  - component: {fileID: 233623599}
+  - component: {fileID: 233623598}
+  m_Layer: 5
+  m_Name: Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &233623597
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233623596}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 391522177}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 405, y: 212}
+  m_SizeDelta: {x: 378.3251, y: 173.659}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &233623598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233623596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2ef0411065fa6544a4a258f146a87eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayText: {fileID: 233623599}
+  prefix: 
+  emptyText: No item held
+  hideWhenEmpty: 1
+--- !u!114 &233623599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233623596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 68
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 94
+    m_Alignment: 1
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: TEXT
+--- !u!222 &233623600
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233623596}
+  m_CullTransparentMesh: 1
 --- !u!1 &240642512
 GameObject:
   m_ObjectHideFlags: 0
@@ -547,6 +675,7 @@ GameObject:
   - component: {fileID: 240642515}
   - component: {fileID: 240642514}
   - component: {fileID: 240642513}
+  - component: {fileID: 240642517}
   m_Layer: 0
   m_Name: Cup (2)
   m_TagString: Untagged
@@ -642,6 +771,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 787135635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &240642517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 240642512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aede2bdfa3148834bbb52558f9b05011, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onClickEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  changeColorOnClick: 0
+  clickColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorChangeDuration: 0.5
+  highlightOnHover: 1
+  hoverColor: {r: 1, g: 0.8, b: 0.4, a: 1}
+  hoverEmissionIntensity: 0.5
+  useEmission: 1
+  floatOnClick: 1
+  floatDistance: 0.75
+  floatSpeed: 5
+  rotationSpeed: 50
+  rotationOffset: {x: 30, y: 5, z: 0}
+  floatOffset: {x: 0.25, y: 0, z: 0}
+  playSoundOnClick: 0
+  clickSound: {fileID: 0}
+  showDebugInfo: 0
 --- !u!1 &317955695
 GameObject:
   m_ObjectHideFlags: 0
@@ -854,6 +1014,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 979484413}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!224 &391522177 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3399169138262442121, guid: d15e74d8fcd484e4eaed9b8f19600d4e, type: 3}
+  m_PrefabInstance: {fileID: 6644708172627569469}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &518247541
 GameObject:
   m_ObjectHideFlags: 0
@@ -1849,11 +2014,11 @@ MonoBehaviour:
   hoverEmissionIntensity: 0.5
   useEmission: 1
   floatOnClick: 1
-  floatDistance: 1
+  floatDistance: 0.75
   floatSpeed: 5
-  rotationSpeed: 30
-  rotationOffset: {x: 0, y: 0, z: 0}
-  floatOffset: {x: 0, y: 0, z: 0}
+  rotationSpeed: 50
+  rotationOffset: {x: 30, y: 5, z: 0}
+  floatOffset: {x: 0.25, y: 0, z: 0}
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
@@ -2907,6 +3072,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1194990602}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1772431835 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6322597208781595650, guid: 7d2c00265b7e7134b867c61a6601b9b7, type: 3}
+  m_PrefabInstance: {fileID: 1828402171960911544}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1772431837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772431835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aede2bdfa3148834bbb52558f9b05011, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onClickEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  changeColorOnClick: 0
+  clickColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorChangeDuration: 0.5
+  highlightOnHover: 1
+  hoverColor: {r: 1, g: 0.8, b: 0.4, a: 1}
+  hoverEmissionIntensity: 0.5
+  useEmission: 1
+  floatOnClick: 1
+  floatDistance: 0.75
+  floatSpeed: 5
+  rotationSpeed: 50
+  rotationOffset: {x: 30, y: 5, z: 0}
+  floatOffset: {x: 0.25, y: 0, z: 0}
+  playSoundOnClick: 0
+  clickSound: {fileID: 0}
+  showDebugInfo: 0
 --- !u!1 &1792859620
 GameObject:
   m_ObjectHideFlags: 0
@@ -2987,6 +3188,7 @@ GameObject:
   - component: {fileID: 1836436900}
   - component: {fileID: 1836436899}
   - component: {fileID: 1836436898}
+  - component: {fileID: 1836436902}
   m_Layer: 0
   m_Name: Cup (3)
   m_TagString: Untagged
@@ -3082,6 +3284,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 787135635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1836436902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1836436897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aede2bdfa3148834bbb52558f9b05011, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onClickEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  changeColorOnClick: 0
+  clickColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorChangeDuration: 0.5
+  highlightOnHover: 1
+  hoverColor: {r: 1, g: 0.8, b: 0.4, a: 1}
+  hoverEmissionIntensity: 0.5
+  useEmission: 1
+  floatOnClick: 1
+  floatDistance: 0.75
+  floatSpeed: 5
+  rotationSpeed: 50
+  rotationOffset: {x: 30, y: 5, z: 0}
+  floatOffset: {x: 0.25, y: 0, z: 0}
+  playSoundOnClick: 0
+  clickSound: {fileID: 0}
+  showDebugInfo: 0
 --- !u!1 &1859104543
 GameObject:
   m_ObjectHideFlags: 0
@@ -3427,7 +3660,7 @@ MonoBehaviour:
   hoverEmissionIntensity: 0.5
   useEmission: 1
   floatOnClick: 1
-  floatDistance: 1
+  floatDistance: 0.75
   floatSpeed: 5
   rotationSpeed: 50
   rotationOffset: {x: 30, y: 5, z: 0}
@@ -3734,7 +3967,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6322597208781595650, guid: 7d2c00265b7e7134b867c61a6601b9b7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1772431837}
   m_SourcePrefab: {fileID: 100100000, guid: 7d2c00265b7e7134b867c61a6601b9b7, type: 3}
 --- !u!1001 &6644708172627569469
 PrefabInstance:
@@ -3838,7 +4074,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3399169138262442121, guid: d15e74d8fcd484e4eaed9b8f19600d4e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 233623597}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d15e74d8fcd484e4eaed9b8f19600d4e, type: 3}
 --- !u!1660057539 &9223372036854775807

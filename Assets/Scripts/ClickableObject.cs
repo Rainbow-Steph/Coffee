@@ -8,11 +8,45 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider))]
 public class ClickableObject : MonoBehaviour
 {
+    // Static variables to track currently held item across all instances
+    private static ClickableObject currentlyHeldObject = null;
+    
+ /// <summary>
+    /// Public static property to get the name of the currently held item (empty string if none)
+    /// </summary>
+    public static string HeldItemName
+  {
+   get
+        {
+     if (currentlyHeldObject != null)
+          {
+         return currentlyHeldObject.gameObject.name;
+            }
+            return string.Empty;
+        }
+  }
+    
+    /// <summary>
+    /// Public static property to check if any item is currently being held
+    /// </summary>
+    public static bool IsAnyItemHeld
+    {
+        get { return currentlyHeldObject != null; }
+    }
+    
+    /// <summary>
+    /// Public static method to get reference to the currently held object
+    /// </summary>
+    public static ClickableObject GetHeldObject()
+  {
+        return currentlyHeldObject;
+    }
+    
     [Header("Click Response")]
     [Tooltip("Event triggered when this object is clicked")]
     public UnityEvent onClickEvent;
     
-    [Header("Visual Feedback")]
+[Header("Visual Feedback")]
     [Tooltip("Change color on click (requires Renderer component)")]
     public bool changeColorOnClick = false;
     
@@ -39,7 +73,7 @@ public class ClickableObject : MonoBehaviour
     [Header("Float Behavior")]
     [Tooltip("Make object float in front of camera when clicked")]
     public bool floatOnClick = false;
-    
+
     [Tooltip("Distance from camera to float at")]
     public float floatDistance = 2f;
     
@@ -52,7 +86,7 @@ public class ClickableObject : MonoBehaviour
     [Tooltip("Rotation offset applied to the floating object (Euler angles)")]
     public Vector3 rotationOffset = Vector3.zero;
     
-  [Tooltip("Offset from center of camera view (up/down/left/right)")]
+    [Tooltip("Offset from center of camera view (up/down/left/right)")]
     public Vector3 floatOffset = Vector3.zero;
     
     [Header("Audio Feedback")]
@@ -63,7 +97,7 @@ public class ClickableObject : MonoBehaviour
     public AudioClip clickSound;
     
     [Header("Debug")]
-[Tooltip("Show debug messages in console")]
+    [Tooltip("Show debug messages in console")]
     public bool showDebugInfo = false;
     
     private Renderer objectRenderer;
@@ -81,9 +115,9 @@ public class ClickableObject : MonoBehaviour
     private Quaternion pickupRotation;  // Rotation when object was picked up
     private Vector3 originalPosition;  // Original spawn position
     private Quaternion originalRotation;  // Original spawn rotation
-    private Transform originalParent;
+  private Transform originalParent;
     private Camera mainCamera;
-    private Collider objectCollider;
+private Collider objectCollider;
     private Quaternion floatingRotationOffset;  // Applied rotation offset during float
     
     void Start()
@@ -279,23 +313,33 @@ public class ClickableObject : MonoBehaviour
     /// Toggles the floating state of the object
     /// </summary>
     private void ToggleFloat()
-  {
-        if (mainCamera == null)
+    {
+    if (mainCamera == null)
         {
-         Debug.LogWarning($"ClickableObject on {gameObject.name}: Cannot float - no Main Camera found!");
-        return;
-        }
-        
+          Debug.LogWarning($"ClickableObject on {gameObject.name}: Cannot float - no Main Camera found!");
+      return;
+   }
+ 
         if (!isFloating)
         {
-         // Start floating
- StartFloating();
-        }
- else
+      // Check if another item is already being held
+   if (currentlyHeldObject != null && currentlyHeldObject != this)
+  {
+             if (showDebugInfo)
       {
-            // Return to original position
-  StopFloating();
-      }
+       Debug.Log($"ClickableObject: Cannot pick up {gameObject.name} - {currentlyHeldObject.gameObject.name} is already being held!");
+        }
+       return; // Don't pick up if another item is held
+       }
+            
+            // Start floating
+            StartFloating();
+        }
+        else
+        {
+         // Return to original position
+        StopFloating();
+        }
     }
     
     /// <summary>
@@ -303,41 +347,50 @@ public class ClickableObject : MonoBehaviour
     /// </summary>
     private void StartFloating()
     {
-    // Store current transform info as the "pickup point" (where it was when clicked)
-   pickupPosition = transform.position;
- pickupRotation = transform.rotation;
-        originalParent = transform.parent;
-        
+        // Store current transform info as the "pickup point" (where it was when clicked)
+        pickupPosition = transform.position;
+        pickupRotation = transform.rotation;
+ originalParent = transform.parent;
+ 
         // Calculate the rotation offset to apply during floating
-  floatingRotationOffset = Quaternion.Euler(rotationOffset);
+        floatingRotationOffset = Quaternion.Euler(rotationOffset);
  
         isFloating = true;
+        
+   // Register this object as the currently held item
+        currentlyHeldObject = this;
    
-// Optionally disable collider while floating to avoid weird interactions
+        // Optionally disable collider while floating to avoid weird interactions
         if (objectCollider != null)
         {
-            objectCollider.enabled = false;
+        objectCollider.enabled = false;
         }
 
         if (showDebugInfo)
-        {
-         Debug.Log($"ClickableObject: {gameObject.name} started floating from position {pickupPosition}");
-        }
+{
+        Debug.Log($"ClickableObject: {gameObject.name} started floating from position {pickupPosition}. Currently held: {HeldItemName}");
+   }
     }
     
     /// <summary>
-    /// Stops the floating behavior and returns object to original position
+ /// Stops the floating behavior and returns object to original position
     /// </summary>
     private void StopFloating()
     {
         isFloating = false;
-      
-  // Start coroutine to smoothly return to original position
-     StartCoroutine(ReturnToOriginalPosition());
         
-    if (showDebugInfo)
+        // Unregister this object as the currently held item
+     if (currentlyHeldObject == this)
+    {
+     currentlyHeldObject = null;
+}
+        
+ // Start coroutine to smoothly return to original position
+        StartCoroutine(ReturnToOriginalPosition());
+ 
+   if (showDebugInfo)
         {
-            Debug.Log($"ClickableObject: {gameObject.name} returning to original position");
+            Debug.Log($"ClickableObject: {gameObject.name} returning to original position. Currently held: {HeldItemName}");
         }
     }
     
@@ -378,7 +431,7 @@ public class ClickableObject : MonoBehaviour
   }
     
     /// <summary>
-    /// Virtual method that can be overridden in derived classes for custom behavior
+ /// Virtual method that can be overridden in derived classes for custom behavior
     /// </summary>
     protected virtual void OnClickedCustom(RaycastHit hit)
     {
@@ -443,10 +496,16 @@ public class ClickableObject : MonoBehaviour
     
     void OnDestroy()
     {
-      // Clean up material instance
+     // Clean up material instance
         if (materialInstance != null)
         {
-            Destroy(materialInstance);
+        Destroy(materialInstance);
         }
+    
+     // Clear the held object reference if this object is being destroyed while held
+        if (currentlyHeldObject == this)
+ {
+       currentlyHeldObject = null;
+  }
     }
 }

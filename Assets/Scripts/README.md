@@ -63,7 +63,7 @@ Add this component to any GameObject you want to make clickable.
    - Leave default settings or adjust as needed
 
 2. **Make an object clickable:**
-- Select any GameObject with a Collider (e.g., a Cube)
+   - Select any GameObject with a Collider (e.g., a Cube)
    - Add Component ? ClickableObject
    - The object will now highlight when you aim at it!
 
@@ -72,6 +72,20 @@ Add this component to any GameObject you want to make clickable.
    - Aim at the object (center of screen) - it should highlight
    - Click the left mouse button to trigger the click event
    - Check the Console for click messages (if debug is enabled)
+
+### UI Setup (Display Held Item Name)
+
+To show the held item name on screen:
+
+1. **Automatic Setup (Recommended):**
+   - Open the Main scene in Unity
+   - Go to: **Tools > Setup Held Item Display** (or Center variant)
+   - Done! The UI text is created and configured automatically
+ 
+2. **Manual Setup:**
+   - See [SETUP_GUIDE.md](SETUP_GUIDE.md) for detailed instructions
+
+The UI will automatically update to show the name of any held item!
 
 ### Float Behavior
 
