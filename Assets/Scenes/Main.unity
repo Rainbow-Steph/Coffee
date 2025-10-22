@@ -3797,14 +3797,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1997380331}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aede2bdfa3148834bbb52558f9b05011, type: 3}
+  m_Script: {fileID: 11500000, guid: 1ba1a59ce3237464a9c50c1298d79b20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   onClickEvent:
     m_PersistentCalls:
       m_Calls: []
-  changeColorOnClick: 0
-  clickColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  changeColorOnClick: 1
+  clickColor: {r: 1, g: 0.10493638, b: 0.015686274, a: 1}
   colorChangeDuration: 0.5
   highlightOnHover: 1
   hoverColor: {r: 1, g: 0.8, b: 0.4, a: 1}
@@ -3813,12 +3813,14 @@ MonoBehaviour:
   floatOnClick: 1
   floatDistance: 0.75
   floatSpeed: 5
-  rotationSpeed: 50
+  rotationSpeed: 30
   rotationOffset: {x: 30, y: 5, z: 0}
-  floatOffset: {x: 0.25, y: 0, z: 0}
+  floatOffset: {x: 0, y: 0, z: 0}
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  outlineMaterial: {fileID: 2100000, guid: 8b88ddbfb7526b04dbdfeb09e0644351, type: 2}
+  transitionSpeed: 0.3
 --- !u!1 &2086662504
 GameObject:
   m_ObjectHideFlags: 0

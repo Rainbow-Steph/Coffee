@@ -218,56 +218,56 @@ private Collider objectCollider;
     /// <summary>
     /// Called by CameraRaycaster when mouse enters this object
     /// </summary>
-  public void OnHoverEnter()
+    public virtual void OnHoverEnter()
     {
         if (!highlightOnHover || isHovering) return;
 
         isHovering = true;
         
-   if (showDebugInfo)
+    if (showDebugInfo)
         {
       Debug.Log($"ClickableObject: Mouse entered {gameObject.name}");
-        }
+  }
       
-        if (materialInstance != null && !isChangingColor)
-  {
+      if (materialInstance != null && !isChangingColor)
+      {
             // Apply hover color
-     materialInstance.color = hoverColor;
+        materialInstance.color = hoverColor;
         
-            // Apply emission if enabled
-    if (useEmission && hasEmission)
-          {
-          Color emissionColor = hoverColor * hoverEmissionIntensity;
-      materialInstance.SetColor("_EmissionColor", emissionColor);
+      // Apply emission if enabled
+            if (useEmission && hasEmission)
+  {
+       Color emissionColor = hoverColor * hoverEmissionIntensity;
+                materialInstance.SetColor("_EmissionColor", emissionColor);
             }
         }
     }
     
     /// <summary>
     /// Called by CameraRaycaster when mouse exits this object
-  /// </summary>
-    public void OnHoverExit()
+    /// </summary>
+    public virtual void OnHoverExit()
     {
-   if (!isHovering) return;
+        if (!isHovering) return;
         
-   isHovering = false;
-        
+    isHovering = false;
+      
         if (showDebugInfo)
         {
             Debug.Log($"ClickableObject: Mouse exited {gameObject.name}");
-        }
+}
      
-     if (materialInstance != null && !isChangingColor)
+        if (materialInstance != null && !isChangingColor)
         {
-    // Restore original color
-            materialInstance.color = originalColor;
-            
-            // Restore original emission
-     if (useEmission && hasEmission)
+            // Restore original color
+      materialInstance.color = originalColor;
+       
+         // Restore original emission
+        if (useEmission && hasEmission)
      {
-       materialInstance.SetColor("_EmissionColor", originalEmissionColor);
-            }
-        }
+           materialInstance.SetColor("_EmissionColor", originalEmissionColor);
+}
+   }
     }
     
     /// <summary>
@@ -494,18 +494,21 @@ private Collider objectCollider;
 }
     }
     
-    void OnDestroy()
+    /// <summary>
+    /// Clean up resources when object is destroyed
+/// </summary>
+    protected virtual void OnDestroy()
     {
-     // Clean up material instance
-        if (materialInstance != null)
+    // Clean up material instance
+   if (materialInstance != null)
         {
-        Destroy(materialInstance);
-        }
+         Destroy(materialInstance);
+ }
     
-     // Clear the held object reference if this object is being destroyed while held
+        // Clear the held object reference if this object is being destroyed while held
         if (currentlyHeldObject == this)
- {
-       currentlyHeldObject = null;
-  }
+        {
+    currentlyHeldObject = null;
+   }
     }
 }
