@@ -1025,6 +1025,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
 --- !u!1 &121532361
 GameObject:
   m_ObjectHideFlags: 0
@@ -1166,6 +1167,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
 --- !u!1 &137093221
 GameObject:
   m_ObjectHideFlags: 0
@@ -1596,6 +1598,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 583243465}
     m_Modifications:
+    - target: {fileID: 6336585464929469072, guid: cce41932cd235f249884d45d56469b25, type: 3}
+      propertyPath: actionTracker
+      value: 
+      objectReference: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
     - target: {fileID: 8188550648197490574, guid: cce41932cd235f249884d45d56469b25, type: 3}
       propertyPath: m_Name
       value: Red Capsule
@@ -2349,6 +2355,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
 --- !u!1001 &282264090
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4014,6 +4021,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 0}
 --- !u!65 &583243467
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4297,6 +4305,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 0}
 --- !u!65 &689740138
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4923,6 +4932,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 0}
 --- !u!65 &746666413
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5388,6 +5398,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 0}
 --- !u!65 &950999396
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5482,6 +5493,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 0}
 --- !u!65 &955207282
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6200,6 +6212,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 0}
 --- !u!1 &1065517228
 GameObject:
   m_ObjectHideFlags: 0
@@ -6357,6 +6370,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 0}
 --- !u!136 &1090588248
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6511,27 +6525,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Player Actions Debug:
-
-    ----------------
-
-    Held Item: {0}
-
-    ----------------
-
-    Machine
-    Contents:
-
-    Liquid: {1}
-
-    Capsule A: {2}
-
-    Capsule B: {3}
-
-    Additive:
-    {4}
-
-    Expected: {5}'
+  m_text: "Player Actions Debug: \n(NOT LIVE IF YOU SEE THIS)\n----------------\nHeld
+    Item: {0}\n----------------\nMachine Contents:\nLiquid: {1}\nCapsule A: {2}\nCapsule
+    B: {3}\nAdditive: {4}\nExpected: {5}"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -9769,6 +9765,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
 --- !u!1 &1859104543
 GameObject:
   m_ObjectHideFlags: 0
@@ -10212,6 +10209,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
 --- !u!114 &1997380337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10726,6 +10724,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 0}
 --- !u!4 &2090345976866283797 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c7353a7771ff99d41b524f4f3bbc7163, type: 3}
@@ -10943,6 +10942,7 @@ MonoBehaviour:
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
 --- !u!136 &3193988901604579370
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -10988,6 +10988,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 583243465}
     m_Modifications:
+    - target: {fileID: 1809482381680091924, guid: 739de8d631c5240448bba35e0ec06e2d, type: 3}
+      propertyPath: actionTracker
+      value: 
+      objectReference: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
     - target: {fileID: 4111217616491269175, guid: 739de8d631c5240448bba35e0ec06e2d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.038380027
@@ -11094,6 +11098,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9188593655952782922, guid: 91f4de180208362499f91db37b8cdf40, type: 3}
+      propertyPath: actionTracker
+      value: 
+      objectReference: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
