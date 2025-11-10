@@ -145,6 +145,13 @@ public class ClickableObject : MonoBehaviour
     [Tooltip("Reference to the PlayerActionTracker scriptable object")]
     public PlayerActionTracker actionTracker;
 
+    [Header("Item Settings")]
+    [Tooltip("Type of item this object represents")]
+    public ItemType itemType = ItemType.Prop;
+
+    [Header("Interaction")]
+    [SerializeField] private ItemInteractionHandler interactionHandler;
+
     void Start()
     {
         // Get all renderers (this object + children if includeChildren is true)
@@ -451,6 +458,12 @@ public class ClickableObject : MonoBehaviour
         if (showDebugInfo)
         {
             Debug.Log($"ClickableObject: {gameObject.name} was clicked at position {hit.point}");
+        }
+
+        // Handle interactions if we have an interaction handler
+        if (interactionHandler != null && IsAnyItemHeld)
+        {
+            interactionHandler.HandleInteraction(this, GetHeldObject());
         }
 
         // Trigger the Unity Event

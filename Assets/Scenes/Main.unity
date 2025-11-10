@@ -1026,6 +1026,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+  itemType: 0
+  interactionHandler: {fileID: 1144797923}
 --- !u!1 &121532361
 GameObject:
   m_ObjectHideFlags: 0
@@ -1168,6 +1170,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+  itemType: 2
+  interactionHandler: {fileID: 1144797923}
 --- !u!1 &137093221
 GameObject:
   m_ObjectHideFlags: 0
@@ -1599,9 +1603,17 @@ PrefabInstance:
     m_TransformParent: {fileID: 583243465}
     m_Modifications:
     - target: {fileID: 6336585464929469072, guid: cce41932cd235f249884d45d56469b25, type: 3}
+      propertyPath: itemType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6336585464929469072, guid: cce41932cd235f249884d45d56469b25, type: 3}
       propertyPath: actionTracker
       value: 
       objectReference: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+    - target: {fileID: 6336585464929469072, guid: cce41932cd235f249884d45d56469b25, type: 3}
+      propertyPath: interactionHandler
+      value: 
+      objectReference: {fileID: 1144797923}
     - target: {fileID: 8188550648197490574, guid: cce41932cd235f249884d45d56469b25, type: 3}
       propertyPath: m_Name
       value: Red Capsule
@@ -2356,6 +2368,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+  itemType: 2
+  interactionHandler: {fileID: 1144797923}
 --- !u!1001 &282264090
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4022,6 +4036,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 0}
+  itemType: 4
+  interactionHandler: {fileID: 0}
 --- !u!65 &583243467
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4306,6 +4322,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 0}
+  itemType: 4
+  interactionHandler: {fileID: 0}
 --- !u!65 &689740138
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4933,6 +4951,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 0}
+  itemType: 4
+  interactionHandler: {fileID: 0}
 --- !u!65 &746666413
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5399,6 +5419,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 0}
+  itemType: 4
+  interactionHandler: {fileID: 0}
 --- !u!65 &950999396
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5494,6 +5516,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 0}
+  itemType: 4
+  interactionHandler: {fileID: 0}
 --- !u!65 &955207282
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6213,6 +6237,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 0}
+  itemType: 4
+  interactionHandler: {fileID: 0}
 --- !u!1 &1065517228
 GameObject:
   m_ObjectHideFlags: 0
@@ -6371,6 +6397,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 0}
+  itemType: 3
+  interactionHandler: {fileID: 1144797923}
 --- !u!136 &1090588248
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6785,6 +6813,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1138371538}
   m_CullTransparentMesh: 1
+--- !u!1 &1144797922
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1144797924}
+  - component: {fileID: 1144797923}
+  m_Layer: 0
+  m_Name: Item Interaction Handler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1144797923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144797922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a43a5d6036de7f4bae445f7d1ac6bb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+  systemMessages: {fileID: 11400000, guid: 011ecdd4a4780fb48ab7da96bc602fa1, type: 2}
+  dialogueManager: {fileID: 42398670}
+--- !u!4 &1144797924
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144797922}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.10867916, y: 0.8846321, z: 4.0112348}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1173362921
 GameObject:
   m_ObjectHideFlags: 0
@@ -9766,6 +9841,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+  itemType: 2
+  interactionHandler: {fileID: 1144797923}
 --- !u!1 &1859104543
 GameObject:
   m_ObjectHideFlags: 0
@@ -10210,6 +10287,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+  itemType: 4
+  interactionHandler: {fileID: 0}
 --- !u!114 &1997380337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10725,6 +10804,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 0}
+  itemType: 4
+  interactionHandler: {fileID: 0}
 --- !u!4 &2090345976866283797 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c7353a7771ff99d41b524f4f3bbc7163, type: 3}
@@ -10943,6 +11024,8 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+  itemType: 4
+  interactionHandler: {fileID: 0}
 --- !u!136 &3193988901604579370
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -10989,9 +11072,17 @@ PrefabInstance:
     m_TransformParent: {fileID: 583243465}
     m_Modifications:
     - target: {fileID: 1809482381680091924, guid: 739de8d631c5240448bba35e0ec06e2d, type: 3}
+      propertyPath: itemType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1809482381680091924, guid: 739de8d631c5240448bba35e0ec06e2d, type: 3}
       propertyPath: actionTracker
       value: 
       objectReference: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+    - target: {fileID: 1809482381680091924, guid: 739de8d631c5240448bba35e0ec06e2d, type: 3}
+      propertyPath: interactionHandler
+      value: 
+      objectReference: {fileID: 1144797923}
     - target: {fileID: 4111217616491269175, guid: 739de8d631c5240448bba35e0ec06e2d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.038380027
@@ -11099,9 +11190,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9188593655952782922, guid: 91f4de180208362499f91db37b8cdf40, type: 3}
+      propertyPath: itemType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9188593655952782922, guid: 91f4de180208362499f91db37b8cdf40, type: 3}
       propertyPath: actionTracker
       value: 
       objectReference: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+    - target: {fileID: 9188593655952782922, guid: 91f4de180208362499f91db37b8cdf40, type: 3}
+      propertyPath: interactionHandler
+      value: 
+      objectReference: {fileID: 1144797923}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -11239,9 +11338,10 @@ SceneRoots:
   - {fileID: 217751968}
   - {fileID: 6644708172627569469}
   - {fileID: 1792859623}
-  - {fileID: 42398669}
   - {fileID: 1203837691}
   - {fileID: 240418361}
   - {fileID: 1623564989}
   - {fileID: 1051162868}
   - {fileID: 712814173}
+  - {fileID: 1144797924}
+  - {fileID: 42398669}
