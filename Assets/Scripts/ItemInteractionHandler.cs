@@ -24,7 +24,7 @@ public class ItemInteractionHandler : MonoBehaviour
         {
             case ItemType.Liquid:
    actionTracker.LiquidName = heldObject.gameObject.name;
-      Destroy(heldObject.gameObject);
+      
           break;
 
             case ItemType.Capsule:
