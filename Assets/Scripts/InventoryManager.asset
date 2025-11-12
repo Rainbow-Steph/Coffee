@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce506f83bc0989d49ab86630886dc88e, type: 3}
+  m_Name: InventoryManager
+  m_EditorClassIdentifier: 
+  Money: 12
+  StoredLiquidType: 
+  StoredLiquidAmount: 3
+  BlackCapsules: 4
+  BlueCapsules: 2
+  RedCapsules: 1
+  Salt: 3
+  Sugar: 2
+  Pepper: 5

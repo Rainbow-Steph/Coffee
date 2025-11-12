@@ -146,11 +146,34 @@ public class ClickableObject : MonoBehaviour
     public PlayerActionTracker actionTracker;
 
     [Header("Item Settings")]
-    [Tooltip("Type of item this object represents")]
+    [Tooltip("Type of this item")]
     public ItemType itemType = ItemType.Prop;
 
     [Header("Interaction")]
-    [SerializeField] private ItemInteractionHandler interactionHandler;
+    [Tooltip("Handler responsible for cross-object interactions (optional)")]
+    public ItemInteractionHandler interactionHandler;
+
+    [Header("Billboard")]
+    [Tooltip("Enable billboard label for this object")]
+    public bool enableBillboard = false;
+
+    [Tooltip("Billboard prefab (must have a BillboardController component)")]
+    public BillboardController billboardPrefab;
+
+    // Runtime instance (created from prefab)
+    private BillboardController billboardInstance;
+
+    [Tooltip("Show billboard when hovering over this object")]
+    public bool billboardShowOnHover = false;
+
+    [Tooltip("Show/hide billboard when clicking this object")]
+    public bool billboardShowOnClick = false;
+
+    [Tooltip("Inventory Manager ScriptableObject to read values from")]
+    public InventoryManager inventoryManager;
+
+    [Tooltip("Which inventory field to display on the billboard")]
+    public InventoryManager.InventoryField billboardInventoryField = InventoryManager.InventoryField.Money;
 
     void Start()
     {
@@ -266,6 +289,18 @@ public class ClickableObject : MonoBehaviour
         {
             Debug.LogWarning($"ClickableObject on {gameObject.name}: floatOnClick is enabled but no Main Camera found!");
         }
+
+        // Instantiate billboard if enabled
+        if (enableBillboard && billboardPrefab != null)
+        {
+            billboardInstance = Instantiate(billboardPrefab, transform.position, Quaternion.identity);
+            // Use SetText to display the object name on the billboard
+            if (billboardInstance != null)
+            {
+                billboardInstance.SetText(gameObject.name);
+                billboardInstance.gameObject.SetActive(false); // Hide billboard by default
+            }
+        }
     }
 
     void Update()
@@ -376,6 +411,12 @@ public class ClickableObject : MonoBehaviour
                 }
             }
         }
+
+        // Show billboard if configured
+        if (enableBillboard && billboardShowOnHover)
+        {
+            ShowBillboard();
+        }
     }
 
     /// <summary>
@@ -393,18 +434,15 @@ public class ClickableObject : MonoBehaviour
         }
 
         // Handle ColorChange mode
-        if (highlightMode == HighlightMode.ColorChange)
+        if (materialInstance != null && !isChangingColor && highlightMode == HighlightMode.ColorChange)
         {
-            if (materialInstance != null && !isChangingColor)
-            {
-                // Restore original color
-                materialInstance.color = originalColor;
+            // Restore original color
+            materialInstance.color = originalColor;
 
-                // Restore original emission
-                if (useEmission && hasEmission)
-                {
-                    materialInstance.SetColor("_EmissionColor", originalEmissionColor);
-                }
+            // Restore original emission
+            if (useEmission && hasEmission)
+            {
+                materialInstance.SetColor("_EmissionColor", originalEmissionColor);
             }
         }
         // Handle OutlineMaterial mode
@@ -447,6 +485,12 @@ public class ClickableObject : MonoBehaviour
                 }
             }
         }
+
+        // Hide billboard if configured
+        if (enableBillboard && billboardShowOnHover)
+        {
+            HideBillboard();
+        }
     }
 
     /// <summary>
@@ -469,6 +513,19 @@ public class ClickableObject : MonoBehaviour
         // Trigger the Unity Event
         onClickEvent?.Invoke();
 
+        // Toggle billboard on click if configured
+        if (enableBillboard && billboardShowOnClick)
+        {
+            if (billboardInstance == null || !billboardInstance.gameObject.activeSelf)
+            {
+                ShowBillboard();
+            }
+            else
+            {
+                HideBillboard();
+            }
+        }
+
         // Handle float behavior
         if (floatOnClick)
         {
@@ -488,6 +545,19 @@ public class ClickableObject : MonoBehaviour
         if (playSoundOnClick && audioSource != null && clickSound != null)
         {
             audioSource.PlayOneShot(clickSound);
+        }
+
+        // Show/hide billboard on click (update content if shown)
+        if (enableBillboard && billboardInstance != null)
+        {
+            bool shouldShow = billboardShowOnClick && !billboardInstance.gameObject.activeSelf;
+            billboardInstance.gameObject.SetActive(shouldShow);
+
+            // Update the inventory display on the billboard if active
+            if (shouldShow && inventoryManager != null)
+            {
+                UpdateBillboardInventory();
+            }
         }
 
         // Call the virtual method for override in derived classes
@@ -711,6 +781,58 @@ Quaternion.Angle(transform.rotation, pickupRotation) > 0.1f)
         }
     }
 
+    #region Billboard Support
+
+    private void ShowBillboard()
+    {
+        if (!enableBillboard || billboardPrefab == null) return;
+
+        if (billboardInstance == null)
+        {
+            // Instantiate billboard prefab in the scene root
+            billboardInstance = Instantiate(billboardPrefab);
+            // Keep it inactive until configured
+            billboardInstance.gameObject.SetActive(false);
+        }
+
+        // Update the billboard text from the inventory manager (if assigned)
+        string text = "";
+        if (inventoryManager != null)
+        {
+            text = inventoryManager.GetFieldDisplay(billboardInventoryField);
+            // Subscribe to inventory updates so the billboard text stays current
+            inventoryManager.onInventoryChanged -= OnInventoryChanged; // avoid double-subscribe
+            inventoryManager.onInventoryChanged += OnInventoryChanged;
+        }
+
+        billboardInstance.SetText(text);
+        billboardInstance.SetTarget(transform);
+        billboardInstance.Show(transform, text);
+    }
+
+    private void HideBillboard()
+    {
+        if (billboardInstance != null)
+        {
+            billboardInstance.Hide();
+        }
+
+        if (inventoryManager != null)
+        {
+            inventoryManager.onInventoryChanged -= OnInventoryChanged;
+        }
+    }
+
+    private void OnInventoryChanged()
+    {
+        if (billboardInstance != null && inventoryManager != null)
+        {
+            billboardInstance.SetText(inventoryManager.GetFieldDisplay(billboardInventoryField));
+        }
+    }
+
+    #endregion
+
     /// <summary>
     /// Clean up resources when object is destroyed
     /// </summary>
@@ -761,12 +883,44 @@ Quaternion.Angle(transform.rotation, pickupRotation) > 0.1f)
                     }
                 }
             }
+        }
 
-            // Clear the held object reference if this object is being destroyed while held
-            if (currentlyHeldObject == this)
+        // Clear the held object reference if this object is being destroyed while held
+        if (currentlyHeldObject == this)
+        {
+            currentlyHeldObject = null;
+
+            // Clear held item in action tracker if assigned
+            if (actionTracker != null && actionTracker.HeldItemName == gameObject.name)
             {
-                currentlyHeldObject = null;
+                actionTracker.HeldItemName = "";
             }
+        }
+
+        // Cleanup billboard instance if any
+        if (billboardInstance != null)
+        {
+            if (inventoryManager != null)
+            {
+                inventoryManager.onInventoryChanged -= OnInventoryChanged;
+            }
+
+            Destroy(billboardInstance.gameObject);
+            billboardInstance = null;
+        }
+    }
+
+    /// <summary>
+    /// Public method to update the inventory display on the billboard
+    /// </summary>
+    public void UpdateBillboardInventory()
+    {
+        if (billboardInstance != null && inventoryManager != null)
+        {
+            string displayText = inventoryManager.GetFieldDisplay(billboardInventoryField);
+
+            // Update the billboard with the new text
+            billboardInstance.SetText(displayText);
         }
     }
 }
