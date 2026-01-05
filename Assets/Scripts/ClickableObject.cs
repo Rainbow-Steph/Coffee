@@ -153,6 +153,10 @@ public class ClickableObject : MonoBehaviour
     [Tooltip("Handler responsible for cross-object interactions (optional)")]
     public ItemInteractionHandler interactionHandler;
 
+    [Header("Coffee Making")]
+    [Tooltip("Optional CoffeeMaker component to call when clicked")]
+    public CoffeeMaker coffeeMaker;
+
     [Header("Billboard")]
     [Tooltip("Enable billboard label for this object")]
     public bool enableBillboard = false;
@@ -508,6 +512,12 @@ public class ClickableObject : MonoBehaviour
         if (interactionHandler != null && IsAnyItemHeld)
         {
             interactionHandler.HandleInteraction(this, GetHeldObject());
+        }
+
+        // Handle coffee making if coffee maker is assigned
+        if (coffeeMaker != null)
+        {
+            coffeeMaker.MakeCoffee();
         }
 
         // Trigger the Unity Event

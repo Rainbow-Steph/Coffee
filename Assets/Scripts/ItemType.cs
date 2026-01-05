@@ -4,6 +4,9 @@ public enum ItemType
     Capsule,
     Additive,
     Machine,
+    MachineWaterInput,
+    MachineCoffeeInput,
+    MachineExtraInput,
     Prop,
     Delivery,
     Usable

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e351095b2bb04f44bb6e34d8b3005fd4, type: 3}
+  m_Name: CraftingManager
+  m_EditorClassIdentifier: 
+  recipes:
+  - recipeName: Warm Water
+    requiredLiquid: Water
+    requiredCoffee1: 
+    requiredCoffee2: 
+    requiredExtra: 
+    resultPrefab: {fileID: 2826356958559688618, guid: 16cd0c2befdaf5e43b96b256932a9cb6, type: 3}
+  - recipeName: Black Coffee
+    requiredLiquid: Water
+    requiredCoffee1: Black
+    requiredCoffee2: 
+    requiredExtra: 
+    resultPrefab: {fileID: 2826356958559688618, guid: c49f6b938fc323d41b2bad4d3990e1a1, type: 3}
+  - recipeName: Double Black Coffee
+    requiredLiquid: Water
+    requiredCoffee1: Black
+    requiredCoffee2: Black
+    requiredExtra: 
+    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}

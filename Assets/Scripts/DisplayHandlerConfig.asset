@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3d29e5a30e25cc40afb643cda23a112, type: 3}
+  m_Name: DisplayHandlerConfig
+  m_EditorClassIdentifier: 
+  waterEmptyMaterial: {fileID: 2100000, guid: 503f897ba84a7574688365bc248da1cd, type: 2}
+  waterFilledMaterial: {fileID: 2100000, guid: 9332d0c39efcdf442ae7bbee6c0973bb, type: 2}
+  coffeeEmptyMaterial: {fileID: 2100000, guid: 503f897ba84a7574688365bc248da1cd, type: 2}
+  redCapsuleMaterial: {fileID: 2100000, guid: cff5de24ad0c7a545b95f363a8ed989f, type: 2}
+  blueCapsuleMaterial: {fileID: 2100000, guid: 9332d0c39efcdf442ae7bbee6c0973bb, type: 2}
+  blackCapsuleMaterial: {fileID: 2100000, guid: bf4424fe8ff4bd646afcfacf4275ded3, type: 2}
+  extraEmptyMaterial: {fileID: 0}
+  saltMaterial: {fileID: 0}
+  sugarMaterial: {fileID: 0}
+  pepperMaterial: {fileID: 0}
+  redCapsuleIdentifier: Red
+  blueCapsuleIdentifier: Blue
+  blackCapsuleIdentifier: Black
+  saltIdentifier: Salt
+  sugarIdentifier: Sugar
+  pepperIdentifier: Pepper
