@@ -114,6 +114,26 @@ public class ClickableObject : MonoBehaviour
     [Tooltip("Keep collisions enabled while holding (allows pushing other objects)")]
     public bool keepCollisionsWhileHeld = true;
 
+    [Tooltip("Use physics-based holding (collisions can push object away from target position)")]
+    public bool usePhysicsHolding = true;
+
+    [Tooltip("Force applied to pull object toward hold position (higher = stronger pull)")]
+    [Range(1f, 100f)]
+    public float holdForce = 20f;
+
+    [Tooltip("Smoothing factor for held object movement (higher = smoother but slightly more lag)")]
+    [Range(1f, 30f)]
+    public float holdSmoothing = 15f;
+
+    [Tooltip("Use kinematic mode while held to eliminate physics jitter")]
+    public bool useKinematicWhileHeld = true;
+
+    [Tooltip("Use continuous collision detection to prevent tunneling through objects")]
+    public bool useContinuousCollision = true;
+
+    [Tooltip("Use ContinuousSpeculative collision for kinematic objects (allows better collision response)")]
+    public bool useContinuousSpeculativeForKinematic = true;
+
     [Header("Audio Feedback")]
     [Tooltip("Play a sound on click (requires AudioSource component)")]
     public bool playSoundOnClick = false;
@@ -152,7 +172,14 @@ public class ClickableObject : MonoBehaviour
     private bool originalUseGravity;
     private Vector3 lastPosition;
     private Vector3 currentVelocity;
-    private float actualHoldDistance; // Stores the distance when picked up
+  private float actualHoldDistance; // Stores the distance when picked up
+    private bool wasKinematic; // Store original kinematic state
+    private Vector3 smoothedPosition; // For smooth interpolation
+private Quaternion smoothedRotation; // For smooth rotation
+ private CollisionDetectionMode originalCollisionMode; // Store original collision detection mode
+ private RigidbodyInterpolation originalInterpolation; // Store original interpolation mode
+    private Vector3 lastValidPosition; // Store last position before collision
+    private bool hitObstacle; // Track if we hit something
 
     [Header("Action Tracking")]
     [Tooltip("Reference to the PlayerActionTracker scriptable object")]
@@ -337,41 +364,125 @@ public class ClickableObject : MonoBehaviour
         // Handle pick up behavior with hold-to-lift mechanic
         if (canPickUp)
         {
-            // Check if mouse button is being released while holding this object
-            if (isBeingHeld && !Input.GetMouseButton(0))
-            {
-                // Mouse button released - drop the object
-                ReleaseObject();
+     // Check if mouse button is being released while holding this object
+   if (isBeingHeld && !Input.GetMouseButton(0))
+   {
+  // Mouse button released - drop the object
+       ReleaseObject();
 
-                if (showDebugInfo)
-                {
-                    Debug.Log($"ClickableObject: {gameObject.name} - Left mouse released, dropping object");
-                }
-                return;
-            }
+   if (showDebugInfo)
+      {
+ Debug.Log($"ClickableObject: {gameObject.name} - Left mouse released, dropping object");
+      }
+       return;
+    }
 
-            // Update object position while being held
-            if (isBeingHeld && mainCamera != null)
-            {
-                // Store last position for velocity calculation
-                lastPosition = transform.position;
+// Update object position while being held
+ if (isBeingHeld && mainCamera != null)
+        {
+             // Calculate target position using the stored actualHoldDistance
+     Vector3 targetPosition = mainCamera.transform.position +
+   mainCamera.transform.forward * actualHoldDistance +
+        mainCamera.transform.TransformDirection(holdOffset);
 
-                // Calculate target position using the stored actualHoldDistance
-                Vector3 targetPosition = mainCamera.transform.position +
-                    mainCamera.transform.forward * actualHoldDistance +
-                    mainCamera.transform.TransformDirection(holdOffset);
+  // Calculate target rotation
+  Quaternion worldYRotation = Quaternion.Euler(0f, rotationSpeed * Time.time, 0f);
+      Quaternion targetRotation = worldYRotation * holdingRotationOffset;
 
-                // Smoothly move to target position
-                transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * pickupSpeed);
+    if (usePhysicsHolding && objectRigidbody != null && !useKinematicWhileHeld)
+      {
+   // Physics-based holding: use forces to pull object toward target
+         // This respects collisions and prevents tunneling
+  Vector3 directionToTarget = targetPosition - transform.position;
+       float distanceToTarget = directionToTarget.magnitude;
+        
+      // Apply force proportional to distance (spring-like behavior)
+    Vector3 force = directionToTarget.normalized * holdForce * distanceToTarget;
+           objectRigidbody.AddForce(force, ForceMode.Force);
+      
+      // Add damping to prevent oscillation
+     objectRigidbody.velocity *= 0.95f;
+     
+    // Update actual hold distance based on current position
+  Vector3 cameraToObject = transform.position - mainCamera.transform.position;
+             float currentDistance = Vector3.Dot(cameraToObject, mainCamera.transform.forward);
+       
+              if (showDebugInfo && Time.frameCount % 30 == 0)
+{
+   Debug.Log($"ClickableObject: {gameObject.name} - Target distance: {actualHoldDistance:F2}, Current distance: {currentDistance:F2}, Force: {force.magnitude:F2}");
+    }
+       }
+      else
+   {
+     // Smooth kinematic/direct control (eliminates jitter)
+        // Use exponential smoothing for very smooth movement
+   float smoothFactor = Time.deltaTime * holdSmoothing;
+     Vector3 targetSmoothedPosition = Vector3.Lerp(smoothedPosition, targetPosition, smoothFactor);
+       Quaternion targetSmoothedRotation = Quaternion.Slerp(smoothedRotation, targetRotation, smoothFactor);
+   
+    // Check if we can move to target position (collision check for kinematic)
+    bool canMoveTo = true;
+     if (objectRigidbody != null && useKinematicWhileHeld && keepCollisionsWhileHeld)
+{
+     // Use raycast or sphere cast to check if path is clear
+      Vector3 moveDirection = targetSmoothedPosition - transform.position;
+     float moveDistance = moveDirection.magnitude;
 
-                // Calculate velocity for momentum
-                currentVelocity = (transform.position - lastPosition) / Time.deltaTime;
+            if (moveDistance > 0.001f && objectCollider != null)
+      {
+     // Cast a sphere to check for obstacles (IGNORE TRIGGERS)
+      RaycastHit hitInfo;
+ float checkRadius = objectCollider.bounds.extents.magnitude * 0.5f;
+    
+      if (Physics.SphereCast(transform.position, checkRadius, moveDirection.normalized, out hitInfo, moveDistance, ~0, QueryTriggerInteraction.Ignore))
+         {
+         // Hit something - don't move through it (but ignore triggers)
+   canMoveTo = false;
+   hitObstacle = true;
+    
+            // Store the position we can reach (just before the obstacle)
+   float safeDistance = Mathf.Max(0, hitInfo.distance - checkRadius * 0.1f);
+     targetSmoothedPosition = transform.position + moveDirection.normalized * safeDistance;
+     
+      if (showDebugInfo && Time.frameCount % 30 == 0)
+   {
+    Debug.Log($"ClickableObject: {gameObject.name} - BLOCKED by {hitInfo.collider.gameObject.name}, stopping at safe distance");
+    }
+    }
+     else
+ {
+        hitObstacle = false;
+        }
+  }
+ }
+   
+    // Apply movement (either to target or to collision point)
+    smoothedPosition = targetSmoothedPosition;
+       smoothedRotation = targetSmoothedRotation;
+   
+      if (objectRigidbody != null && useKinematicWhileHeld)
+  {
+       // Use MovePosition for kinematic rigidbodies (physics-aware, prevents tunneling)
+       objectRigidbody.MovePosition(smoothedPosition);
+       objectRigidbody.MoveRotation(smoothedRotation);
+     }
+  else
+      {
+  // Direct transform control (least collision-safe, but works without Rigidbody)
+  transform.position = smoothedPosition;
+      transform.rotation = smoothedRotation;
+      }
+          }
 
-                // Apply rotation on world Y axis (not local)
-                Quaternion worldYRotation = Quaternion.Euler(0f, rotationSpeed * Time.time, 0f);
-                Quaternion targetRotation = worldYRotation * holdingRotationOffset;
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * pickupSpeed);
-            }
+    // Store position for velocity calculation BEFORE update
+   Vector3 positionBeforeUpdate = transform.position;
+       
+                // Calculate velocity for momentum based on actual movement
+  currentVelocity = (transform.position - lastPosition) / Time.deltaTime;
+  
+  // Update lastPosition for next frame
+    lastPosition = transform.position;
+     }
         }
     }
 
@@ -721,37 +832,86 @@ holdingRotationOffset = Quaternion.Euler(rotationOffset);
    }
         else if (showDebugInfo && keepCollisionsWhileHeld)
         {
-   Debug.Log($"ClickableObject: {gameObject.name} - Collisions kept enabled for pushing other objects");
+ Debug.Log($"ClickableObject: {gameObject.name} - Collisions kept enabled for pushing other objects");
       }
+
+  // IMPORTANT: Always keep collider enabled if we want collision response
+ // Even in kinematic mode, colliders must be enabled for collision detection
+  if (keepCollisionsWhileHeld && objectCollider != null)
+  {
+   objectCollider.enabled = true;
+        
+        if (showDebugInfo)
+        {
+     Debug.Log($"ClickableObject: {gameObject.name} - Collider FORCED ENABLED for collision response");
+        }
+    }
 
   // Disable gravity while being held
 if (objectRigidbody != null)
-        {
+    {
      originalUseGravity = objectRigidbody.useGravity;
   objectRigidbody.useGravity = false;
-        objectRigidbody.velocity = Vector3.zero;
-     objectRigidbody.angularVelocity = Vector3.zero;
+      
+   // Store and set kinematic state for smooth holding
+  wasKinematic = objectRigidbody.isKinematic;
+   
+       // Store original collision detection and interpolation modes
+ originalCollisionMode = objectRigidbody.collisionDetectionMode;
+        originalInterpolation = objectRigidbody.interpolation;
+      
+    // Set collision detection based on kinematic state
+   if (useKinematicWhileHeld && !usePhysicsHolding)
+      {
+     // Set kinematic mode
+     objectRigidbody.isKinematic = true;
+
+            // Use ContinuousSpeculative for kinematic (better collision detection)
+            if (useContinuousSpeculativeForKinematic)
+            {
+  objectRigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+   }
+}
+      else if (useContinuousCollision && !wasKinematic)
+      {
+    // Dynamic mode with continuous collision
+     objectRigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+ }
+    
+  // Enable interpolation for smoother physics
+  if (!wasKinematic)
+   {
+   objectRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+        }
+  
+  // Only zero velocities if NOT using physics holding
+   if (!usePhysicsHolding)
+    {
+   objectRigidbody.velocity = Vector3.zero;
+objectRigidbody.angularVelocity = Vector3.zero;
+  }
      
   if (showDebugInfo)
 {
-    Debug.Log($"ClickableObject: {gameObject.name} - Gravity disabled, velocities zeroed");
+    Debug.Log($"ClickableObject: {gameObject.name} - Gravity disabled" + 
+    (useKinematicWhileHeld && !usePhysicsHolding ? ", kinematic mode" : "") +
+      (usePhysicsHolding ? ", physics holding enabled" : ", velocities zeroed") +
+ (objectRigidbody.collisionDetectionMode == CollisionDetectionMode.ContinuousSpeculative ? ", continuous speculative collision" : 
+    objectRigidbody.collisionDetectionMode == CollisionDetectionMode.ContinuousDynamic ? ", continuous dynamic collision" : ", discrete collision"));
    }
       }
 
+   // Initialize smooth position/rotation to current values
+        smoothedPosition = transform.position;
+     smoothedRotation = transform.rotation;
+
    // Initialize velocity tracking
   lastPosition = transform.position;
-        currentVelocity = Vector3.zero;
-
-     // Update action tracker if assigned
-   if (actionTracker != null)
-  {
-       actionTracker.HeldItemName = gameObject.name;
-  }
-
-  if (showDebugInfo)
-  {
-        Debug.Log($"ClickableObject: {gameObject.name} picked up from position {pickupPosition}. Currently held: {HeldItemName}");
-      }
+     currentVelocity = Vector3.zero;
+    
+        // Initialize collision tracking
+    lastValidPosition = transform.position;
+        hitObstacle = false;
     }
 
   /// <summary>
@@ -767,33 +927,64 @@ if (objectRigidbody != null)
   {
     currentlyHeldObject = null;
 
-         // Clear held item in action tracker if assigned
+   // Clear held item in action tracker if assigned
       if (actionTracker != null && actionTracker.HeldItemName == gameObject.name)
 {
     actionTracker.HeldItemName = "";
     }
-   }
+ }
 
-      // Re-enable gravity when dropped
+      // Re-enable gravity and restore physics settings when dropped
    if (objectRigidbody != null)
-        {
-     objectRigidbody.useGravity = originalUseGravity;
+ {
+  objectRigidbody.useGravity = originalUseGravity;
+      objectRigidbody.isKinematic = wasKinematic;
+      
+// Restore original collision detection and interpolation modes
+      objectRigidbody.collisionDetectionMode = originalCollisionMode;
+  objectRigidbody.interpolation = originalInterpolation;
    
        // Apply retained momentum based on momentumRetention setting
-   if (momentumRetention > 0f)
+   // IMPORTANT: Apply momentum AFTER restoring physics settings
+   if (momentumRetention > 0f && !wasKinematic)
    {
-       // Apply the calculated velocity with momentum retention
-     objectRigidbody.velocity = currentVelocity * momentumRetention;
+       // Calculate final velocity including any smoothing
+  // Use the tracked velocity from actual movement
+     Vector3 finalVelocity = currentVelocity * momentumRetention;
      
-            if (showDebugInfo)
+       // Apply the momentum to the rigidbody
+  objectRigidbody.velocity = finalVelocity;
+     
+ if (showDebugInfo)
        {
-    Debug.Log($"ClickableObject: {gameObject.name} - Applied momentum: {objectRigidbody.velocity} (retention: {momentumRetention})");
+    Debug.Log($"ClickableObject: {gameObject.name} - Applied momentum: {finalVelocity} (retention: {momentumRetention}, magnitude: {finalVelocity.magnitude:F2})");
+  }
      }
-     }
-       
-    if (showDebugInfo)
+      else if (showDebugInfo)
    {
-     Debug.Log($"ClickableObject: {gameObject.name} - Gravity restored to: {originalUseGravity}");
+   Debug.Log($"ClickableObject: {gameObject.name} - No momentum applied (retention: {momentumRetention}, wasKinematic: {wasKinematic})");
+   }
+        
+        // IMPORTANT: Ensure object will fall if not kinematic
+   // Add a small downward velocity to overcome any floating caused by collision
+        if (!wasKinematic && originalUseGravity)
+     {
+       // Check if object has no significant velocity (might be floating)
+   if (objectRigidbody.velocity.magnitude < 0.1f)
+   {
+      // Give it a small downward nudge to start falling
+    objectRigidbody.velocity += Vector3.down * 0.1f;
+     
+     if (showDebugInfo)
+         {
+          Debug.Log($"ClickableObject: {gameObject.name} - Added downward nudge to prevent floating");
+      }
+  }
+     }
+    
+  if (showDebugInfo)
+   {
+     Debug.Log($"ClickableObject: {gameObject.name} - Gravity restored to: {originalUseGravity}, Kinematic: {wasKinematic}, CollisionMode: {originalCollisionMode}");
  }
 }
 
@@ -805,7 +996,7 @@ if (objectRigidbody != null)
      if (showDebugInfo)
   {
       Debug.Log($"ClickableObject: {gameObject.name} - Collider re-enabled");
-            }
+    }
      }
 
         if (showDebugInfo)
@@ -821,12 +1012,60 @@ if (objectRigidbody != null)
         {
             ReleaseObject();
         }
+    }
 
-        // Calculate current velocity for momentum retention
-        if (isBeingHeld && objectRigidbody != null)
-        {
-            currentVelocity = (transform.position - lastPosition) / Time.deltaTime;
-            lastPosition = transform.position;
+    /// <summary>
+    /// Detect collisions while object is being held
+    /// </summary>
+    void OnCollisionEnter(Collision collision)
+    {
+        if (isBeingHeld && keepCollisionsWhileHeld)
+ {
+            // Ignore trigger colliders
+      if (collision.collider.isTrigger)
+   return;
+       
+    hitObstacle = true;
+      
+  if (showDebugInfo)
+   {
+Debug.Log($"ClickableObject: {gameObject.name} collided with {collision.gameObject.name} while held!");
+   }
+}
+    }
+
+    /// <summary>
+    /// Continue tracking collision contact
+    /// </summary>
+  void OnCollisionStay(Collision collision)
+    {
+        if (isBeingHeld && keepCollisionsWhileHeld)
+      {
+          // Ignore trigger colliders
+if (collision.collider.isTrigger)
+             return;
+            
+   hitObstacle = true;
+  }
+  }
+
+  /// <summary>
+    /// Track when collision ends
+    /// </summary>
+    void OnCollisionExit(Collision collision)
+    {
+        if (isBeingHeld && keepCollisionsWhileHeld)
+ {
+     // Ignore trigger colliders
+         if (collision.collider.isTrigger)
+          return;
+ 
+hitObstacle = false;
+   
+ if (showDebugInfo)
+    {
+      Debug.Log($"ClickableObject: {gameObject.name} stopped colliding with {collision.gameObject.name}");
+  }
         }
     }
 
