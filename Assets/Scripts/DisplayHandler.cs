@@ -74,71 +74,88 @@ public class DisplayHandler : MonoBehaviour
 
     private void CacheRenderersAndOrganize()
     {
-        if (displayAssignments == null || displayAssignments.Length == 0)
-        {
+        Debug.Log($"[DisplayHandler] ========== CACHE RENDERERS START ==========");
+        
+     if (displayAssignments == null || displayAssignments.Length == 0)
+    {
             Debug.LogWarning($"[{GetType().Name}] No display assignments configured!", this);
             return;
         }
 
-        foreach (var assignment in displayAssignments)
+        Debug.Log($"[DisplayHandler] Processing {displayAssignments.Length} display assignments...");
+
+     foreach (var assignment in displayAssignments)
         {
-            if (assignment == null || assignment.displayGameObject == null)
-                continue;
+ if (assignment == null)
+            {
+           Debug.LogWarning($"[DisplayHandler] Found NULL assignment in array!", this);
+     continue;
+   }
+
+         Debug.Log($"[DisplayHandler] Processing: {assignment.displayType}");
+            
+if (assignment.displayGameObject == null)
+       {
+            Debug.LogWarning($"[DisplayHandler] {assignment.displayType} has NO GameObject assigned!", this);
+   continue;
+            }
+
+   Debug.Log($"[DisplayHandler] GameObject: {assignment.displayGameObject.name}");
 
             // Cache the Renderer component
             assignment.cachedRenderer = assignment.displayGameObject.GetComponent<Renderer>();
 
-            if (assignment.cachedRenderer == null)
-            {
-                Debug.LogWarning($"[{GetType().Name}] GameObject '{assignment.displayGameObject.name}' is missing a Renderer component!", this);
-                continue;
-            }
+         if (assignment.cachedRenderer == null)
+  {
+    Debug.LogWarning($"[{GetType().Name}] GameObject '{assignment.displayGameObject.name}' is missing a Renderer component!", this);
+        continue;
+          }
 
-            // Organize into quick lookup references
+            Debug.Log($"[DisplayHandler] ? Renderer found: {assignment.cachedRenderer.GetType().Name}");
+
+// Organize into quick lookup references
             switch (assignment.displayType)
-            {
-                case DisplayType.WaterDisplay1:
-                    waterDisplay1Assignment = assignment;
-                    if (showDebugLogs)
-                        Debug.Log($"[DisplayHandler] Configured Water Display 1: {assignment.displayGameObject.name}");
-                    break;
+          {
+      case DisplayType.WaterDisplay1:
+   waterDisplay1Assignment = assignment;
+                    Debug.Log($"[DisplayHandler] ?? Water Display 1 ASSIGNED");
+        break;
 
-                case DisplayType.WaterDisplay2:
-                    waterDisplay2Assignment = assignment;
-                    if (showDebugLogs)
-                        Debug.Log($"[DisplayHandler] Configured Water Display 2: {assignment.displayGameObject.name}");
-                    break;
+          case DisplayType.WaterDisplay2:
+              waterDisplay2Assignment = assignment;
+        Debug.Log($"[DisplayHandler] ?? Water Display 2 ASSIGNED");
+break;
 
-                case DisplayType.WaterDisplay3:
-                    waterDisplay3Assignment = assignment;
-                    if (showDebugLogs)
-                        Debug.Log($"[DisplayHandler] Configured Water Display 3: {assignment.displayGameObject.name}");
-                    break;
+           case DisplayType.WaterDisplay3:
+             waterDisplay3Assignment = assignment;
+ Debug.Log($"[DisplayHandler] ?? Water Display 3 ASSIGNED");
+            break;
 
-                case DisplayType.CoffeeDisplay1:
-                    coffeeDisplay1Assignment = assignment;
-                    if (showDebugLogs)
-                        Debug.Log($"[DisplayHandler] Configured Coffee Display 1: {assignment.displayGameObject.name}");
-                    break;
+       case DisplayType.CoffeeDisplay1:
+          coffeeDisplay1Assignment = assignment;
+  Debug.Log($"[DisplayHandler] ??? COFFEE DISPLAY 1 ASSIGNED ???");
+      break;
 
-                case DisplayType.CoffeeDisplay2:
-                    coffeeDisplay2Assignment = assignment;
-                    if (showDebugLogs)
-                        Debug.Log($"[DisplayHandler] Configured Coffee Display 2: {assignment.displayGameObject.name}");
-                    break;
+     case DisplayType.CoffeeDisplay2:
+         coffeeDisplay2Assignment = assignment;
+  Debug.Log($"[DisplayHandler] ??? COFFEE DISPLAY 2 ASSIGNED ???");
+        break;
 
-                case DisplayType.ExtraDisplay:
-                    extraDisplayAssignment = assignment;
-                    if (showDebugLogs)
-                        Debug.Log($"[DisplayHandler] Configured Extra Display: {assignment.displayGameObject.name}");
-                    break;
+       case DisplayType.ExtraDisplay:
+        extraDisplayAssignment = assignment;
+  Debug.Log($"[DisplayHandler] ?? Extra Display ASSIGNED");
+  break;
             }
         }
 
-        if (showDebugLogs)
-        {
-            Debug.Log($"[DisplayHandler] All displays configured. Total assignments: {displayAssignments.Length}");
-        }
+      Debug.Log($"[DisplayHandler] ========== FINAL STATUS ==========");
+        Debug.Log($"  Water Display 1: {(waterDisplay1Assignment != null ? "? OK" : "? MISSING")}");
+        Debug.Log($"  Water Display 2: {(waterDisplay2Assignment != null ? "? OK" : "? MISSING")}");
+     Debug.Log($"  Water Display 3: {(waterDisplay3Assignment != null ? "? OK" : "? MISSING")}");
+        Debug.Log($"  Coffee Display 1: {(coffeeDisplay1Assignment != null ? "? OK" : "? MISSING")}");
+        Debug.Log($"  Coffee Display 2: {(coffeeDisplay2Assignment != null ? "? OK" : "? MISSING")}");
+        Debug.Log($"  Extra Display: {(extraDisplayAssignment != null ? "? OK" : "? MISSING")}");
+        Debug.Log($"[DisplayHandler] ========================================");
     }
 
     private bool ValidateReferences()
@@ -200,6 +217,7 @@ public class DisplayHandler : MonoBehaviour
     {
         UpdateWaterDisplays(liquidName);
         UpdateCoffeeDisplays(capsuleAName, capsuleBName);
+        UpdateExtraDisplay(additiveName); // ? FIXED: Added missing call
     }
 
     #region Water Display Updates
@@ -245,20 +263,36 @@ public class DisplayHandler : MonoBehaviour
 
     private void UpdateCoffeeDisplay(DisplayAssignment assignment, string capsuleName, string displayName)
     {
-        if (assignment?.cachedRenderer == null) return;
+        Debug.Log($"[DisplayHandler] UpdateCoffeeDisplay called for {displayName}");
+        Debug.Log($"  - Assignment null? {(assignment == null)}");
+        Debug.Log($"  - cachedRenderer null? {(assignment?.cachedRenderer == null)}");
+        Debug.Log($"  - Capsule name: '{capsuleName}'");
+        
+        if (assignment?.cachedRenderer == null)
+        {
+            Debug.LogWarning($"[DisplayHandler] Cannot update {displayName} - renderer is null!");
+            return;
+        }
 
         Material targetMaterial;
 
         if (string.IsNullOrEmpty(capsuleName))
         {
             targetMaterial = displayConfig.coffeeEmptyMaterial;
+            Debug.Log($"  - Using EMPTY material (capsule name is empty)");
         }
         else
         {
             targetMaterial = GetCapsuleMaterial(capsuleName);
+            Debug.Log($"  - Got capsule material: {(targetMaterial != null ? targetMaterial.name : "NULL")}");
         }
 
+        Material currentMaterial = assignment.cachedRenderer.material;
+        Debug.Log($"  - Current material: {(currentMaterial != null ? currentMaterial.name : "NULL")}");
+        Debug.Log($"  - Target material: {(targetMaterial != null ? targetMaterial.name : "NULL")}");
+        
         assignment.cachedRenderer.material = targetMaterial;
+        Debug.Log($"  - Material applied! New material: {assignment.cachedRenderer.material.name}");
 
         if (showDebugLogs)
         {
@@ -268,28 +302,34 @@ public class DisplayHandler : MonoBehaviour
 
     private Material GetCapsuleMaterial(string capsuleName)
     {
+        Debug.Log($"[DisplayHandler] GetCapsuleMaterial called with: '{capsuleName}'");
+        Debug.Log($"  - Red identifier: '{displayConfig.redCapsuleIdentifier}'");
+        Debug.Log($"  - Blue identifier: '{displayConfig.blueCapsuleIdentifier}'");
+        Debug.Log($"  - Black identifier: '{displayConfig.blackCapsuleIdentifier}'");
+        
         // Check for red capsule
         if (capsuleName.Contains(displayConfig.redCapsuleIdentifier))
         {
+            Debug.Log($"  - MATCH: Red capsule detected!");
             return displayConfig.redCapsuleMaterial;
         }
         // Check for blue capsule
         else if (capsuleName.Contains(displayConfig.blueCapsuleIdentifier))
         {
+            Debug.Log($"  - MATCH: Blue capsule detected!");
             return displayConfig.blueCapsuleMaterial;
         }
         // Check for black capsule
         else if (capsuleName.Contains(displayConfig.blackCapsuleIdentifier))
         {
+            Debug.Log($"  - MATCH: Black capsule detected!");
             return displayConfig.blackCapsuleMaterial;
         }
 
         // Default to empty if no match found
-        if (showDebugLogs)
-        {
-            Debug.LogWarning($"[DisplayHandler] Capsule '{capsuleName}' did not match any color identifier. Using empty material.");
-        }
-
+        Debug.LogWarning($"[DisplayHandler] NO MATCH: Capsule '{capsuleName}' did not match any color identifier!");
+        Debug.LogWarning($"  - Tried: '{displayConfig.redCapsuleIdentifier}', '{displayConfig.blueCapsuleIdentifier}', '{displayConfig.blackCapsuleIdentifier}'");
+        
         return displayConfig.coffeeEmptyMaterial;
     }
 

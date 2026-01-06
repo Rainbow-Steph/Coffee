@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   heldItemName: 
   machineContents:
-    liquidName: 
+    liquidName: Water
     capsuleAName: 
     capsuleBName: 
     additiveName: 
     expectedResult: 
+  liquidAmount: 0

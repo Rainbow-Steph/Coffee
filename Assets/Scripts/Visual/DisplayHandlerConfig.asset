@@ -18,10 +18,10 @@ MonoBehaviour:
   redCapsuleMaterial: {fileID: 2100000, guid: cff5de24ad0c7a545b95f363a8ed989f, type: 2}
   blueCapsuleMaterial: {fileID: 2100000, guid: 9332d0c39efcdf442ae7bbee6c0973bb, type: 2}
   blackCapsuleMaterial: {fileID: 2100000, guid: bf4424fe8ff4bd646afcfacf4275ded3, type: 2}
-  extraEmptyMaterial: {fileID: 0}
-  saltMaterial: {fileID: 0}
-  sugarMaterial: {fileID: 0}
-  pepperMaterial: {fileID: 0}
+  extraEmptyMaterial: {fileID: 2100000, guid: 503f897ba84a7574688365bc248da1cd, type: 2}
+  saltMaterial: {fileID: 2100000, guid: 9332d0c39efcdf442ae7bbee6c0973bb, type: 2}
+  sugarMaterial: {fileID: 2100000, guid: 4b38a6d2ab0f03d468b3f0063369cddc, type: 2}
+  pepperMaterial: {fileID: 2100000, guid: cff5de24ad0c7a545b95f363a8ed989f, type: 2}
   redCapsuleIdentifier: Red
   blueCapsuleIdentifier: Blue
   blackCapsuleIdentifier: Black

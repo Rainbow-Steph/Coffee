@@ -31,55 +31,103 @@ public class CraftingManager : ScriptableObject
         public GameObject resultPrefab;
 
         /// <summary>
-        /// Check if this recipe matches the given machine contents
+        /// Check if this recipe PERFECTLY matches the given machine contents
+        /// Empty/null components in recipe are treated as "None required"
+        /// Empty/null components in machine are treated as "None provided"
+ /// All non-empty components must match exactly (using Contains for flexibility)
         /// </summary>
         public bool MatchesContents(string liquid, string capsuleA, string capsuleB, string additive)
         {
-            // Check liquid (must match if required)
-         if (!string.IsNullOrEmpty(requiredLiquid))
+            // Normalize empty strings to null for consistent comparison
+   liquid = string.IsNullOrEmpty(liquid) ? null : liquid;
+        capsuleA = string.IsNullOrEmpty(capsuleA) ? null : capsuleA;
+            capsuleB = string.IsNullOrEmpty(capsuleB) ? null : capsuleB;
+   additive = string.IsNullOrEmpty(additive) ? null : additive;
+
+    // === LIQUID CHECK ===
+      // If recipe requires liquid, machine must have it
+   if (!string.IsNullOrEmpty(requiredLiquid))
   {
-         if (string.IsNullOrEmpty(liquid) || !liquid.Contains(requiredLiquid))
-      return false;
-          }
-
-            // Check first coffee component
-            if (!string.IsNullOrEmpty(requiredCoffee1))
-        {
-      bool matchesA = !string.IsNullOrEmpty(capsuleA) && capsuleA.Contains(requiredCoffee1);
-       bool matchesB = !string.IsNullOrEmpty(capsuleB) && capsuleB.Contains(requiredCoffee1);
-      
-if (!matchesA && !matchesB)
-        return false;
-            }
-
-            // Check second coffee component (if specified)
-     if (!string.IsNullOrEmpty(requiredCoffee2))
-   {
-             bool hasCoffee2 = false;
-    
-    // Check if Coffee2 is in either slot (and different from Coffee1 if both specified)
-              if (!string.IsNullOrEmpty(capsuleA) && capsuleA.Contains(requiredCoffee2))
-          hasCoffee2 = true;
-   if (!string.IsNullOrEmpty(capsuleB) && capsuleB.Contains(requiredCoffee2))
-        hasCoffee2 = true;
-       
-        if (!hasCoffee2)
-return false;
-            }
-
-   // Check extra/additive component (if specified)
-   if (!string.IsNullOrEmpty(requiredExtra))
-     {
-   if (string.IsNullOrEmpty(additive) || !additive.Contains(requiredExtra))
-         return false;
+     if (liquid == null || !liquid.Contains(requiredLiquid))
+   return false;
          }
+        // If recipe doesn't require liquid, machine must NOT have liquid (perfect match)
+       else
+            {
+        if (liquid != null)
+     return false; // Recipe wants no liquid, but machine has liquid
+            }
 
-            return true;
-      }
+          // === COFFEE COMPONENTS CHECK ===
+            // Count how many coffee components the recipe requires
+         bool needsCoffee1 = !string.IsNullOrEmpty(requiredCoffee1);
+         bool needsCoffee2 = !string.IsNullOrEmpty(requiredCoffee2);
+     
+            // Count how many capsules the machine has
+        int machineCapsulesCount = (capsuleA != null ? 1 : 0) + (capsuleB != null ? 1 : 0);
+            int recipeCapsulesCount = (needsCoffee1 ? 1 : 0) + (needsCoffee2 ? 1 : 0);
 
-  public override string ToString()
+            // Machine must have EXACTLY the same number of capsules as recipe requires
+            if (machineCapsulesCount != recipeCapsulesCount)
+return false;
+
+// If recipe requires coffee components, check if they match
+   if (needsCoffee1 || needsCoffee2)
+         {
+                // Collect machine capsules into a list
+                List<string> machineCapsules = new List<string>();
+     if (capsuleA != null) machineCapsules.Add(capsuleA);
+ if (capsuleB != null) machineCapsules.Add(capsuleB);
+
+                // Collect required capsules into a list
+    List<string> requiredCapsules = new List<string>();
+         if (needsCoffee1) requiredCapsules.Add(requiredCoffee1);
+     if (needsCoffee2) requiredCapsules.Add(requiredCoffee2);
+
+     // Check if all required capsules are found in machine capsules
+  foreach (string requiredCapsule in requiredCapsules)
+         {
+ bool found = false;
+         for (int i = 0; i < machineCapsules.Count; i++)
         {
-return $"{recipeName}: Liquid={requiredLiquid}, Coffee1={requiredCoffee1}, Coffee2={requiredCoffee2}, Extra={requiredExtra}";
+          if (machineCapsules[i].Contains(requiredCapsule))
+     {
+          found = true;
+ machineCapsules.RemoveAt(i); // Remove to prevent double-matching
+         break;
+   }
+      }
+        
+        if (!found)
+          return false; // Required capsule not found
+     }
+
+                // If there are leftover machine capsules, it's not a perfect match
+     if (machineCapsules.Count > 0)
+    return false;
+     }
+
+     // === EXTRA/ADDITIVE CHECK ===
+      // If recipe requires extra, machine must have it
+   if (!string.IsNullOrEmpty(requiredExtra))
+   {
+                if (additive == null || !additive.Contains(requiredExtra))
+ return false;
+   }
+            // If recipe doesn't require extra, machine must NOT have extra (perfect match)
+            else
+            {
+         if (additive != null)
+  return false; // Recipe wants no extra, but machine has extra
+   }
+
+            // All checks passed - perfect match!
+          return true;
+        }
+
+        public override string ToString()
+     {
+      return $"{recipeName}: Liquid={requiredLiquid}, Coffee1={requiredCoffee1}, Coffee2={requiredCoffee2}, Extra={requiredExtra}";
         }
     }
 
@@ -90,15 +138,15 @@ return $"{recipeName}: Liquid={requiredLiquid}, Coffee1={requiredCoffee1}, Coffe
     /// <summary>
     /// Find a recipe that matches the given machine contents
     /// </summary>
-    public CraftableRecipe FindMatchingRecipe(string liquid, string capsuleA, string capsuleB, string additive)
+  public CraftableRecipe FindMatchingRecipe(string liquid, string capsuleA, string capsuleB, string additive)
     {
- foreach (var recipe in recipes)
-  {
+        foreach (var recipe in recipes)
+        {
             if (recipe.MatchesContents(liquid, capsuleA, capsuleB, additive))
-       {
-      return recipe;
-  }
-    }
+            {
+   return recipe;
+   }
+        }
 
         return null;
     }
@@ -106,20 +154,20 @@ return $"{recipeName}: Liquid={requiredLiquid}, Coffee1={requiredCoffee1}, Coffe
     /// <summary>
     /// Get recipe by name
     /// </summary>
-  public CraftableRecipe GetRecipeByName(string name)
+    public CraftableRecipe GetRecipeByName(string name)
     {
-        return recipes.Find(r => r.recipeName.Equals(name, System.StringComparison.OrdinalIgnoreCase));
+  return recipes.Find(r => r.recipeName.Equals(name, System.StringComparison.OrdinalIgnoreCase));
     }
 
-    private void OnValidate()
-    {
+  private void OnValidate()
+  {
         // Validate recipes
-        foreach (var recipe in recipes)
+    foreach (var recipe in recipes)
         {
-            if (recipe.resultPrefab == null)
-            {
-      Debug.LogWarning($"CraftingManager: Recipe '{recipe.recipeName}' is missing a result prefab!", this);
-     }
+    if (recipe.resultPrefab == null)
+       {
+     Debug.LogWarning($"CraftingManager: Recipe '{recipe.recipeName}' is missing a result prefab!", this);
+  }
         }
     }
 }
