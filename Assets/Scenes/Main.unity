@@ -7574,7 +7574,7 @@ MonoBehaviour:
   - displayType: 3
     displayGameObject: {fileID: 1727528510}
     cachedRenderer: {fileID: 0}
-  - displayType: 1
+  - displayType: 4
     displayGameObject: {fileID: 883967005}
     cachedRenderer: {fileID: 0}
   - displayType: 5
