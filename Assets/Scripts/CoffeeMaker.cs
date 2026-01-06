@@ -19,6 +19,19 @@ public class CoffeeMaker : MonoBehaviour
     [Tooltip("Default spawn offset if no spawn point is set")]
     [SerializeField] private Vector3 defaultSpawnOffset = new Vector3(0, 1, 0);
 
+    [Header("Launch Settings")]
+    [Tooltip("Direction to launch the crafted item (relative to spawn point)")]
+  [SerializeField] private Vector3 launchDirection = new Vector3(0, 0.5f, 1f);
+    
+    [Tooltip("Force applied to launch the item")]
+    [SerializeField] private float launchForce = 5f;
+    
+    [Tooltip("Add random variation to launch direction")]
+    [SerializeField] private bool addRandomVariation = true;
+    
+    [Tooltip("Maximum random angle variation in degrees")]
+    [SerializeField] private float maxRandomAngle = 15f;
+
     [Header("Debug")]
     [SerializeField] private bool showDebugLogs = false;
 
@@ -158,29 +171,88 @@ public class CoffeeMaker : MonoBehaviour
 
     private void SpawnCraftedItem(CraftingManager.CraftableRecipe recipe)
     {
-        if (recipe.resultPrefab == null)
-        {
-            Debug.LogError($"[CoffeeMaker] Recipe '{recipe.recipeName}' has no result prefab!");
-            return;
-        }
+    if (recipe.resultPrefab == null)
+      {
+Debug.LogError($"[CoffeeMaker] Recipe '{recipe.recipeName}' has no result prefab!");
+        return;
+   }
 
         Vector3 spawnPosition;
+        Quaternion spawnRotation;
+        Vector3 finalLaunchDirection;
+
         if (spawnPoint != null)
         {
-            spawnPosition = spawnPoint.position;
+  spawnPosition = spawnPoint.position;
+   spawnRotation = spawnPoint.rotation;
+            
+  // Use spawn point's forward direction if launch direction is default
+     if (launchDirection == new Vector3(0, 0.5f, 1f))
+    {
+      // Transform launch direction based on spawn point's rotation
+                finalLaunchDirection = spawnPoint.TransformDirection(launchDirection.normalized);
+  }
+     else
+          {
+                // Use custom launch direction relative to spawn point
+     finalLaunchDirection = spawnPoint.TransformDirection(launchDirection.normalized);
+      }
         }
         else
         {
-            spawnPosition = transform.position + defaultSpawnOffset;
+      spawnPosition = transform.position + defaultSpawnOffset;
+            spawnRotation = Quaternion.identity;
+            finalLaunchDirection = launchDirection.normalized;
         }
 
-        GameObject craftedItem = Instantiate(recipe.resultPrefab, spawnPosition, Quaternion.identity);
-        craftedItem.name = recipe.recipeName; // Remove "(Clone)" suffix
+    // Add random variation if enabled
+   if (addRandomVariation && maxRandomAngle > 0)
+        {
+     // Create random rotation within max angle cone
+ float randomX = Random.Range(-maxRandomAngle, maxRandomAngle);
+  float randomY = Random.Range(-maxRandomAngle, maxRandomAngle);
+  Quaternion randomRotation = Quaternion.Euler(randomX, randomY, 0);
+    finalLaunchDirection = randomRotation * finalLaunchDirection;
+  }
+
+        // Instantiate the item
+      GameObject craftedItem = Instantiate(recipe.resultPrefab, spawnPosition, spawnRotation);
+ craftedItem.name = recipe.recipeName; // Remove "(Clone)" suffix
+
+     // Apply physics if Rigidbody exists
+        Rigidbody rb = craftedItem.GetComponent<Rigidbody>();
+  if (rb != null)
+        {
+       // Apply launch velocity
+   rb.velocity = finalLaunchDirection * launchForce;
+            
+         // Add slight random angular velocity for more natural movement
+     if (addRandomVariation)
+          {
+      rb.angularVelocity = new Vector3(
+     Random.Range(-2f, 2f),
+         Random.Range(-2f, 2f),
+          Random.Range(-2f, 2f)
+         );
+            }
+
+    if (showDebugLogs)
+          {
+     Debug.Log($"[CoffeeMaker] Launched {recipe.recipeName} with velocity {rb.velocity} (force: {launchForce})");
+      }
+        }
+  else
+   {
+       if (showDebugLogs)
+            {
+Debug.LogWarning($"[CoffeeMaker] Spawned {recipe.recipeName} has no Rigidbody - cannot apply launch velocity!");
+   }
+        }
 
         if (showDebugLogs)
-        {
-            Debug.Log($"[CoffeeMaker] Spawned {recipe.recipeName} at {spawnPosition}");
-        }
+ {
+       Debug.Log($"[CoffeeMaker] Spawned {recipe.recipeName} at {spawnPosition}");
+     }
     }
 
     private void ShowLiquidNeededMessage()

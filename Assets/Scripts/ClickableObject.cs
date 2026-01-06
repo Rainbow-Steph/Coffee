@@ -88,24 +88,31 @@ public class ClickableObject : MonoBehaviour
     [Tooltip("Include child objects when applying outline")]
     public bool includeChildren = true;
 
-    [Header("Float Behavior")]
-    [Tooltip("Make object float in front of camera when clicked")]
-    public bool floatOnClick = false;
+    [Header("Pick Up Behavior")]
+    [Tooltip("Allow picking up this object by holding left mouse button")]
+    public bool canPickUp = false;
 
-    [Tooltip("Distance from camera to float at")]
-    public float floatDistance = 2f;
+    [Tooltip("Distance from camera to hold object at")]
+    public float holdDistance = 2f;
 
-    [Tooltip("Speed at which object moves to float position")]
-    public float floatSpeed = 5f;
+    [Tooltip("Speed at which object moves to hold position")]
+    public float pickupSpeed = 5f;
 
-    [Tooltip("Speed at which object rotates while floating (degrees per second)")]
+    [Tooltip("Speed at which object rotates while being held (degrees per second)")]
     public float rotationSpeed = 30f;
 
-    [Tooltip("Rotation offset applied to the floating object (Euler angles)")]
+    [Tooltip("Rotation offset applied to the held object (Euler angles)")]
     public Vector3 rotationOffset = Vector3.zero;
 
     [Tooltip("Offset from center of camera view (up/down/left/right)")]
-    public Vector3 floatOffset = Vector3.zero;
+    public Vector3 holdOffset = Vector3.zero;
+
+    [Tooltip("Percentage of velocity to retain when released (0 = no momentum, 1 = full momentum)")]
+    [Range(0f, 1f)]
+    public float momentumRetention = 0.7f;
+
+    [Tooltip("Keep collisions enabled while holding (allows pushing other objects)")]
+    public bool keepCollisionsWhileHeld = true;
 
     [Header("Audio Feedback")]
     [Tooltip("Play a sound on click (requires AudioSource component)")]
@@ -130,8 +137,9 @@ public class ClickableObject : MonoBehaviour
     private bool isHovering = false;
     private bool hasEmission = false;
 
-    // Float behavior variables
-    private bool isFloating = false;
+    // Pick up behavior variables
+    private bool isBeingHeld = false;
+    private bool isHoldingMouseButton = false;
     private Vector3 pickupPosition;
     private Quaternion pickupRotation;
     private Vector3 originalPosition;
@@ -139,7 +147,12 @@ public class ClickableObject : MonoBehaviour
     private Transform originalParent;
     private Camera mainCamera;
     private Collider objectCollider;
-    private Quaternion floatingRotationOffset;
+    private Quaternion holdingRotationOffset;
+    private Rigidbody objectRigidbody;
+    private bool originalUseGravity;
+    private Vector3 lastPosition;
+    private Vector3 currentVelocity;
+    private float actualHoldDistance; // Stores the distance when picked up
 
     [Header("Action Tracking")]
     [Tooltip("Reference to the PlayerActionTracker scriptable object")]
@@ -282,6 +295,18 @@ public class ClickableObject : MonoBehaviour
             Debug.LogError($"ClickableObject on {gameObject.name}: No Collider component found! This object cannot be clicked.");
         }
 
+        // Get Rigidbody if it exists (for gravity control during pickup)
+        objectRigidbody = GetComponent<Rigidbody>();
+        if (objectRigidbody != null && canPickUp)
+        {
+            originalUseGravity = objectRigidbody.useGravity;
+            
+            if (showDebugInfo)
+            {
+                Debug.Log($"ClickableObject on {gameObject.name}: Found Rigidbody, gravity will be disabled during pickup");
+            }
+        }
+
         // Store original transform information
         originalPosition = transform.position;
         originalRotation = transform.rotation;
@@ -289,9 +314,9 @@ public class ClickableObject : MonoBehaviour
 
         // Find main camera
         mainCamera = Camera.main;
-        if (mainCamera == null && floatOnClick)
+        if (mainCamera == null && canPickUp)
         {
-            Debug.LogWarning($"ClickableObject on {gameObject.name}: floatOnClick is enabled but no Main Camera found!");
+            Debug.LogWarning($"ClickableObject on {gameObject.name}: canPickUp is enabled but no Main Camera found!");
         }
 
         // Instantiate billboard if enabled
@@ -309,32 +334,44 @@ public class ClickableObject : MonoBehaviour
 
     void Update()
     {
-        // Check for right-click to return floating object
-        if (floatOnClick && isFloating && Input.GetMouseButtonDown(1))
+        // Handle pick up behavior with hold-to-lift mechanic
+        if (canPickUp)
         {
-            StopFloating();
-
-            if (showDebugInfo)
+            // Check if mouse button is being released while holding this object
+            if (isBeingHeld && !Input.GetMouseButton(0))
             {
-                Debug.Log($"ClickableObject: {gameObject.name} - Right-click detected, returning to pickup position");
+                // Mouse button released - drop the object
+                ReleaseObject();
+
+                if (showDebugInfo)
+                {
+                    Debug.Log($"ClickableObject: {gameObject.name} - Left mouse released, dropping object");
+                }
+                return;
             }
-            return;
-        }
 
-        if (floatOnClick && isFloating && mainCamera != null)
-        {
-            // Calculate target position in front of camera
-            Vector3 targetPosition = mainCamera.transform.position +
-          mainCamera.transform.forward * floatDistance +
-                    mainCamera.transform.TransformDirection(floatOffset);
+            // Update object position while being held
+            if (isBeingHeld && mainCamera != null)
+            {
+                // Store last position for velocity calculation
+                lastPosition = transform.position;
 
-            // Smoothly move to target position
-            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * floatSpeed);
+                // Calculate target position using the stored actualHoldDistance
+                Vector3 targetPosition = mainCamera.transform.position +
+                    mainCamera.transform.forward * actualHoldDistance +
+                    mainCamera.transform.TransformDirection(holdOffset);
 
-            // Apply rotation on world Y axis (not local)
-            Quaternion worldYRotation = Quaternion.Euler(0f, rotationSpeed * Time.time, 0f);
-            Quaternion targetRotation = worldYRotation * floatingRotationOffset;
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * floatSpeed);
+                // Smoothly move to target position
+                transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * pickupSpeed);
+
+                // Calculate velocity for momentum
+                currentVelocity = (transform.position - lastPosition) / Time.deltaTime;
+
+                // Apply rotation on world Y axis (not local)
+                Quaternion worldYRotation = Quaternion.Euler(0f, rotationSpeed * Time.time, 0f);
+                Quaternion targetRotation = worldYRotation * holdingRotationOffset;
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * pickupSpeed);
+            }
         }
     }
 
@@ -536,10 +573,10 @@ public class ClickableObject : MonoBehaviour
             }
         }
 
-        // Handle float behavior
-        if (floatOnClick)
+        // Handle pick-up behavior
+        if (canPickUp)
         {
-            ToggleFloat();
+            TogglePickUp();
         }
 
         // Visual feedback
@@ -570,149 +607,232 @@ public class ClickableObject : MonoBehaviour
             }
         }
 
+        // Handle pick up behavior - start holding when clicked
+        if (canPickUp && !isBeingHeld)
+        {
+            StartHoldingObject();
+        }
+
         // Call the virtual method for override in derived classes
         OnClickedCustom(hit);
     }
 
     /// <summary>
-    /// Toggles the floating state of the object
+    /// Toggles the pick-up state of the object
     /// </summary>
-    private void ToggleFloat()
+    private void TogglePickUp()
     {
         if (mainCamera == null)
         {
-            Debug.LogWarning($"ClickableObject on {gameObject.name}: Cannot float - no Main Camera found!");
+         Debug.LogWarning($"ClickableObject on {gameObject.name}: Cannot pick up - no Main Camera found!");
             return;
-        }
+     }
 
-        if (!isFloating)
+      if (!isBeingHeld)
         {
-            // Check if another item is already being held
+// Check if another item is already being held
             if (currentlyHeldObject != null && currentlyHeldObject != this)
-            {
-                if (showDebugInfo)
-                {
-                    Debug.Log($"ClickableObject: Cannot pick up {gameObject.name} - {currentlyHeldObject.gameObject.name} is already being held!");
-                }
-                return;
-            }
-
-            // Start floating
-            StartFloating();
-
-            // Update action tracker if assigned
-            if (actionTracker != null)
-            {
-                actionTracker.HeldItemName = gameObject.name;
-            }
+         {
+        if (showDebugInfo)
+         {
+     Debug.Log($"ClickableObject: Cannot pick up {gameObject.name} - {currentlyHeldObject.gameObject.name} is already being held!");
         }
-        else
-        {
-            // Return to original position
-            StopFloating();
+   return;
+            }
 
-            // Clear held item in action tracker if assigned
+// Start holding object
+            StartHoldingObject();
+
+      // Update action tracker if assigned
+            if (actionTracker != null)
+  {
+      actionTracker.HeldItemName = gameObject.name;
+        }
+        }
+     else
+        {
+    // Release object
+            ReleaseObject();
+
+// Clear held item in action tracker if assigned
             if (actionTracker != null && actionTracker.HeldItemName == gameObject.name)
             {
-                actionTracker.HeldItemName = "";
-            }
+ actionTracker.HeldItemName = "";
+        }
         }
     }
 
     /// <summary>
-    /// Starts the floating behavior
+    /// Starts holding the object (called when clicked)
     /// </summary>
-    private void StartFloating()
+    private void StartHoldingObject()
     {
-        // Store current transform info as the "pickup point"
-        pickupPosition = transform.position;
-        pickupRotation = transform.rotation;
-        originalParent = transform.parent;
+     if (mainCamera == null)
+{
+      Debug.LogWarning($"ClickableObject on {gameObject.name}: Cannot pick up - no Main Camera found!");
+     return;
+ }
 
-        // Calculate the rotation offset to apply during floating
-        floatingRotationOffset = Quaternion.Euler(rotationOffset);
+ // Check if another item is already being held
+      if (currentlyHeldObject != null && currentlyHeldObject != this)
+  {
+  if (showDebugInfo)
+  {
+ Debug.Log($"ClickableObject: Cannot pick up {gameObject.name} - {currentlyHeldObject.gameObject.name} is already being held!");
+    }
+      return;
+   }
 
-        isFloating = true;
+    // Store current transform info as the "pickup point"
+      pickupPosition = transform.position;
+      pickupRotation = transform.rotation;
+      originalParent = transform.parent;
+
+     // Calculate and store the actual distance from camera at pickup time
+    Vector3 cameraToObject = transform.position - mainCamera.transform.position;
+        actualHoldDistance = Vector3.Dot(cameraToObject, mainCamera.transform.forward);
+        
+   // Clamp to reasonable values (use holdDistance as max limit)
+actualHoldDistance = Mathf.Clamp(actualHoldDistance, 0.5f, holdDistance);
+     
+        if (showDebugInfo)
+      {
+     Debug.Log($"ClickableObject: {gameObject.name} - Calculated hold distance: {actualHoldDistance:F2} (max: {holdDistance})");
+        }
+
+   // Calculate the rotation offset to apply while holding
+holdingRotationOffset = Quaternion.Euler(rotationOffset);
+
+  isBeingHeld = true;
+    isHoldingMouseButton = true;
 
         // Register this object as the currently held item
-        currentlyHeldObject = this;
+     currentlyHeldObject = this;
 
-        // Optionally disable collider while floating
-        if (objectCollider != null)
-        {
-            objectCollider.enabled = false;
-        }
-
-        if (showDebugInfo)
-        {
-            Debug.Log($"ClickableObject: {gameObject.name} started floating from position {pickupPosition}. Currently held: {HeldItemName}");
-        }
-    }
-
-    private void StopFloating()
+  // Handle collider based on keepCollisionsWhileHeld setting
+        if (objectCollider != null && !keepCollisionsWhileHeld)
+   {
+ objectCollider.enabled = false;
+        
+   if (showDebugInfo)
     {
-        isFloating = false;
-
-        // Unregister this object as the currently held item
-        if (currentlyHeldObject == this)
+     Debug.Log($"ClickableObject: {gameObject.name} - Collider disabled");
+  }
+   }
+        else if (showDebugInfo && keepCollisionsWhileHeld)
         {
-            currentlyHeldObject = null;
+   Debug.Log($"ClickableObject: {gameObject.name} - Collisions kept enabled for pushing other objects");
+      }
 
-            // Clear held item in action tracker if assigned
-            if (actionTracker != null && actionTracker.HeldItemName == gameObject.name)
-            {
-                actionTracker.HeldItemName = "";
-            }
-        }
-
-        // Start coroutine to smoothly return to original position
-        StartCoroutine(ReturnToOriginalPosition());
-
-        if (showDebugInfo)
+  // Disable gravity while being held
+if (objectRigidbody != null)
         {
-            Debug.Log($"ClickableObject: {gameObject.name} returning to original position. Currently held: {HeldItemName}");
-        }
+     originalUseGravity = objectRigidbody.useGravity;
+  objectRigidbody.useGravity = false;
+        objectRigidbody.velocity = Vector3.zero;
+     objectRigidbody.angularVelocity = Vector3.zero;
+     
+  if (showDebugInfo)
+{
+    Debug.Log($"ClickableObject: {gameObject.name} - Gravity disabled, velocities zeroed");
+   }
+      }
+
+   // Initialize velocity tracking
+  lastPosition = transform.position;
+        currentVelocity = Vector3.zero;
+
+     // Update action tracker if assigned
+   if (actionTracker != null)
+  {
+       actionTracker.HeldItemName = gameObject.name;
+  }
+
+  if (showDebugInfo)
+  {
+        Debug.Log($"ClickableObject: {gameObject.name} picked up from position {pickupPosition}. Currently held: {HeldItemName}");
+      }
     }
 
-    /// <summary>
-    /// Coroutine to smoothly return object to its original position
+  /// <summary>
+    /// Releases the held object (called when mouse button is released)
     /// </summary>
-    private System.Collections.IEnumerator ReturnToOriginalPosition()
+    private void ReleaseObject()
     {
-        // Restore parent
-        transform.SetParent(originalParent);
+  isBeingHeld = false;
+   isHoldingMouseButton = false;
 
-        float returnSpeed = floatSpeed;
-        float rotationReturnSpeed = floatSpeed * 2f;
+      // Unregister this object as the currently held item
+   if (currentlyHeldObject == this)
+  {
+    currentlyHeldObject = null;
 
-        // Smoothly move back to pickup position and rotation
-        while (Vector3.Distance(transform.position, pickupPosition) > 0.01f ||
-Quaternion.Angle(transform.rotation, pickupRotation) > 0.1f)
+         // Clear held item in action tracker if assigned
+      if (actionTracker != null && actionTracker.HeldItemName == gameObject.name)
+{
+    actionTracker.HeldItemName = "";
+    }
+   }
+
+      // Re-enable gravity when dropped
+   if (objectRigidbody != null)
         {
-            transform.position = Vector3.Lerp(transform.position, pickupPosition, Time.deltaTime * returnSpeed);
-            transform.rotation = Quaternion.Lerp(transform.rotation, pickupRotation, Time.deltaTime * rotationReturnSpeed);
-            yield return null;
-        }
+     objectRigidbody.useGravity = originalUseGravity;
+   
+       // Apply retained momentum based on momentumRetention setting
+   if (momentumRetention > 0f)
+   {
+       // Apply the calculated velocity with momentum retention
+     objectRigidbody.velocity = currentVelocity * momentumRetention;
+     
+            if (showDebugInfo)
+       {
+    Debug.Log($"ClickableObject: {gameObject.name} - Applied momentum: {objectRigidbody.velocity} (retention: {momentumRetention})");
+     }
+     }
+       
+    if (showDebugInfo)
+   {
+     Debug.Log($"ClickableObject: {gameObject.name} - Gravity restored to: {originalUseGravity}");
+ }
+}
 
-        // Snap to exact pickup transform
-        transform.position = pickupPosition;
-        transform.rotation = pickupRotation;
-
-        // Re-enable collider
-        if (objectCollider != null)
-        {
-            objectCollider.enabled = true;
-        }
+// Re-enable collider if it was disabled
+      if (objectCollider != null && !keepCollisionsWhileHeld)
+   {
+    objectCollider.enabled = true;
+  
+     if (showDebugInfo)
+  {
+      Debug.Log($"ClickableObject: {gameObject.name} - Collider re-enabled");
+            }
+     }
 
         if (showDebugInfo)
+ {
+   Debug.Log($"ClickableObject: {gameObject.name} released at current position. Currently held: {HeldItemName}");
+     }
+    }
+
+    void LateUpdate()
+    {
+        // Auto-release object if being held and mouse button is released
+        if (isBeingHeld && isHoldingMouseButton && Input.GetMouseButtonUp(0))
         {
-            Debug.Log($"ClickableObject: {gameObject.name} returned to pickup position {pickupPosition}");
+            ReleaseObject();
+        }
+
+        // Calculate current velocity for momentum retention
+        if (isBeingHeld && objectRigidbody != null)
+        {
+            currentVelocity = (transform.position - lastPosition) / Time.deltaTime;
+            lastPosition = transform.position;
         }
     }
 
     /// <summary>
     /// Virtual method that can be overridden in derived classes for custom behavior
-    /// </summary>
+  /// </summary>
     protected virtual void OnClickedCustom(RaycastHit hit)
     {
         // Override this method in derived classes to add custom behavior
@@ -781,14 +901,14 @@ Quaternion.Angle(transform.rotation, pickupRotation) > 0.1f)
     }
 
     /// <summary>
-    /// Public method to force return to original position
+    /// Public method to force release at current position
     /// </summary>
     public void ForceReturnToOriginal()
-    {
-        if (isFloating)
-        {
-            StopFloating();
-        }
+  {
+      if (isBeingHeld)
+      {
+    ReleaseObject();
+ }
     }
 
     #region Billboard Support
