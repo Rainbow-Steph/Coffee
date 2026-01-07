@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2f8ba0786151b74bb144ed3bf87a027, type: 3}
+  m_Name: SupplyConfig
+  m_EditorClassIdentifier: 
+  waterConfig:
+    resourceTypeName: Water
+    debugColor: {r: 0, g: 0, b: 1, a: 1}
+    costPerSpawn: 0
+    minSpawnCount: 1
+    maxSpawnCount: 1
+    spawnDelay: 0.1
+    launchForce: 5
+    launchDirection: {x: -4.23, y: -37.4, z: 1}
+    addRandomVariation: 1
+    maxRandomAngle: 15
+    availableItems:
+    - prefab: {fileID: 7105501118930292728, guid: 0517ef1820d4c2440ac640f8fb41a0bf, type: 3}
+      itemName: Water
+      isAvailable: 1
+      spawnWeight: 0
+  coffeeConfig:
+    resourceTypeName: Coffee
+    debugColor: {r: 1, g: 0, b: 0.09962988, a: 1}
+    costPerSpawn: 0
+    minSpawnCount: 1
+    maxSpawnCount: 5
+    spawnDelay: 0.1
+    launchForce: 2
+    launchDirection: {x: 0, y: 0, z: 1}
+    addRandomVariation: 1
+    maxRandomAngle: 15
+    availableItems:
+    - prefab: {fileID: 6473907668563284820, guid: 91f4de180208362499f91db37b8cdf40, type: 3}
+      itemName: Black Capsule
+      isAvailable: 1
+      spawnWeight: 0
+    - prefab: {fileID: 4561886000510649866, guid: 739de8d631c5240448bba35e0ec06e2d, type: 3}
+      itemName: Blue Capsule
+      isAvailable: 1
+      spawnWeight: 1
+    - prefab: {fileID: 8188550648197490574, guid: cce41932cd235f249884d45d56469b25, type: 3}
+      itemName: Red Capsule
+      isAvailable: 1
+      spawnWeight: 1
+  extrasConfig:
+    resourceTypeName: Extras
+    debugColor: {r: 0, g: 0, b: 1, a: 1}
+    costPerSpawn: 10
+    minSpawnCount: 1
+    maxSpawnCount: 3
+    spawnDelay: 0.1
+    launchForce: 5
+    launchDirection: {x: 0, y: 0, z: 1}
+    addRandomVariation: 1
+    maxRandomAngle: 15
+    availableItems: []
+  spawnAnimationDuration: 0.5
+  failedAnimationDuration: 0.3
+  spawnSuccessSound: {fileID: 0}
+  failedSound: {fileID: 0}

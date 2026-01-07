@@ -99,7 +99,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -118,6 +118,7 @@ GameObject:
   - component: {fileID: 4111217616491269175}
   - component: {fileID: 4588031088473074377}
   - component: {fileID: 1809482381680091924}
+  - component: {fileID: 2378784282543774063}
   m_Layer: 0
   m_Name: Blue Capsule
   m_TagString: Untagged
@@ -134,8 +135,8 @@ Transform:
   m_GameObject: {fileID: 4561886000510649866}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.038380027, y: 0.024399996, z: -0.01026988}
-  m_LocalScale: {x: 0.18683, y: 0.18683, z: 0.18683}
+  m_LocalPosition: {x: 0.038380027, y: 0.059, z: -0.01026988}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8566145376173406537}
@@ -157,7 +158,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -189,15 +190,60 @@ MonoBehaviour:
   useEmission: 1
   outlineMaterial: {fileID: 2100000, guid: 8b88ddbfb7526b04dbdfeb09e0644351, type: 2}
   includeChildren: 1
-  floatOnClick: 1
-  floatDistance: 0.17
-  floatSpeed: 5
+  canPickUp: 1
+  holdDistance: 2
+  pickupSpeed: 5
   rotationSpeed: 50
   rotationOffset: {x: 20, y: 15, z: 0}
-  floatOffset: {x: 0.075, y: -0.03, z: 0.05}
+  holdOffset: {x: 0, y: 0, z: 0}
+  momentumRetention: 0.7
+  keepCollisionsWhileHeld: 1
+  usePhysicsHolding: 1
+  holdForce: 20
+  holdSmoothing: 15
+  useKinematicWhileHeld: 1
+  useContinuousCollision: 1
+  useContinuousSpeculativeForKinematic: 1
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
+  actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
+  itemType: 1
+  interactionHandler: {fileID: 0}
+  coffeeMaker: {fileID: 0}
+  enableBillboard: 1
+  billboardPrefab: {fileID: 0}
+  billboardShowOnHover: 1
+  billboardShowOnClick: 0
+  inventoryManager: {fileID: 11400000, guid: aa7fdb7700af2c24ab081a6cd67a5a9e, type: 2}
+  billboardInventoryField: 4
+--- !u!54 &2378784282543774063
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4561886000510649866}
+  serializedVersion: 4
+  m_Mass: 0.5
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &6506212940413490759
 GameObject:
   m_ObjectHideFlags: 0
@@ -297,7 +343,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
