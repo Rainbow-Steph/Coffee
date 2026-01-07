@@ -500,6 +500,14 @@ if (waterDisplay2Assignment?.cachedRenderer != null)
     #region Public Methods
 
     /// <summary>
+    /// Alias for RefreshDisplays() - for compatibility with MachineInputTrigger
+    /// </summary>
+    public void UpdateDisplay()
+    {
+        RefreshDisplays();
+    }
+
+    /// <summary>
     /// Manually refresh all displays based on current tracker state
     /// </summary>
     public void RefreshDisplays()
