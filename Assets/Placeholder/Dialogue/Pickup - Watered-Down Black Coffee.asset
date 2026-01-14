@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pickup - Watered-Down Black Coffee
   m_EditorClassIdentifier: 
   dialogueLines:
-  - Some <color = blue>Watered-down</color> <color = black>Black</color> Coffee
+  - Some <color=blue>Watered-down</color> <color=black>Black</color> Coffee
   canBeCancelled: 1
   textSpeed: 45
   voiceClips:

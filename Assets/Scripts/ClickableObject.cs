@@ -922,6 +922,13 @@ objectRigidbody.angularVelocity = Vector3.zero;
   isBeingHeld = false;
    isHoldingMouseButton = false;
 
+      // Clear dialogue when releasing object
+      DialogueManager dialogueManager = FindObjectOfType<DialogueManager>();
+      if (dialogueManager != null)
+      {
+          dialogueManager.ClearDialogue();
+      }
+
       // Unregister this object as the currently held item
    if (currentlyHeldObject == this)
   {

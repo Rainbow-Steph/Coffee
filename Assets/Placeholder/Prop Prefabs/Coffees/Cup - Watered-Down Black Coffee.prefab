@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bf4424fe8ff4bd646afcfacf4275ded3, type: 2}
+  - {fileID: 2100000, guid: 9332d0c39efcdf442ae7bbee6c0973bb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -117,7 +117,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2851918262581929965, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
       propertyPath: m_Name
-      value: Cup - Double Black Coffee
+      value: Cup - Watered-Down Black Coffee
       objectReference: {fileID: 0}
     - target: {fileID: 3233545088060980567, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dc64d2ada5cfce4c96d6067d98e3fdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogue: {fileID: 11400000, guid: 518324b260ab211489a35b93f11c2afd, type: 2}
+  dialogue: {fileID: 11400000, guid: f197453f768eaf04792ab2f3fdee5a07, type: 2}
   playOnce: 0
 --- !u!54 &1643638579419722818
 Rigidbody:

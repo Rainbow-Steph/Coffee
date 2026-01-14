@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 6487547245787812563}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0094, y: 0.7931, z: 0.0189}
-  m_LocalScale: {x: 1.1776223, y: 0.5079901, z: 0.97041845}
+  m_LocalPosition: {x: 0.0094, y: 0.5933, z: 0.0189}
+  m_LocalScale: {x: 1.1776223, y: 0.3081468, z: 0.97041845}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3202881775157579024}
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9332d0c39efcdf442ae7bbee6c0973bb, type: 2}
+  - {fileID: 2100000, guid: d2b0558918722f64ea41a02aa673a73c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -117,7 +117,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2851918262581929965, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
       propertyPath: m_Name
-      value: Cup - Water
+      value: Cup - Spicy Coffee
       objectReference: {fileID: 0}
     - target: {fileID: 3233545088060980567, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -159,6 +159,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4421828328468074961, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: cff5de24ad0c7a545b95f363a8ed989f, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -177,7 +181,7 @@ PrefabInstance:
       addedObject: {fileID: 3278215602139223936}
     - targetCorrespondingSourceObject: {fileID: 2851918262581929965, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1850935093727757343}
+      addedObject: {fileID: 6119788256046120875}
   m_SourcePrefab: {fileID: 100100000, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
 --- !u!1 &2826356958559688618 stripped
 GameObject:
@@ -231,17 +235,25 @@ MonoBehaviour:
   useEmission: 1
   outlineMaterial: {fileID: 2100000, guid: 8b88ddbfb7526b04dbdfeb09e0644351, type: 2}
   includeChildren: 1
-  floatOnClick: 1
-  floatDistance: 0.5
-  floatSpeed: 5
+  canPickUp: 1
+  holdDistance: 1
+  pickupSpeed: 5
   rotationSpeed: 50
   rotationOffset: {x: 20, y: 5, z: 0}
-  floatOffset: {x: 0.13, y: -0.08, z: 0}
+  holdOffset: {x: 0, y: 0, z: 0}
+  momentumRetention: 0.7
+  keepCollisionsWhileHeld: 1
+  usePhysicsHolding: 1
+  holdForce: 20
+  holdSmoothing: 15
+  useKinematicWhileHeld: 1
+  useContinuousCollision: 1
+  useContinuousSpeculativeForKinematic: 1
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
-  itemType: 4
+  itemType: 8
   interactionHandler: {fileID: 0}
   coffeeMaker: {fileID: 0}
   enableBillboard: 0
@@ -262,9 +274,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dc64d2ada5cfce4c96d6067d98e3fdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogue: {fileID: 11400000, guid: 7ccce679bdd63e845bfc6dd2a8d0114a, type: 2}
+  dialogue: {fileID: 11400000, guid: a43a2da7fe9189c43a3696f0874a444b, type: 2}
   playOnce: 0
---- !u!54 &1850935093727757343
+--- !u!54 &6119788256046120875
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

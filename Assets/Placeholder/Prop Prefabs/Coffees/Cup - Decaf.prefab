@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 6487547245787812563}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0094, y: 0.7931, z: 0.0189}
-  m_LocalScale: {x: 1.1776223, y: 0.5079901, z: 0.97041845}
+  m_LocalPosition: {x: 0.0094, y: 0.5933, z: 0.0189}
+  m_LocalScale: {x: 1.1776223, y: 0.3081468, z: 0.97041845}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3202881775157579024}
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bf4424fe8ff4bd646afcfacf4275ded3, type: 2}
+  - {fileID: 2100000, guid: d2b0558918722f64ea41a02aa673a73c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -117,7 +117,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2851918262581929965, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
       propertyPath: m_Name
-      value: Cup - Double Black Coffee
+      value: Cup - Decaf
       objectReference: {fileID: 0}
     - target: {fileID: 3233545088060980567, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -159,6 +159,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4421828328468074961, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9332d0c39efcdf442ae7bbee6c0973bb, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -177,7 +181,7 @@ PrefabInstance:
       addedObject: {fileID: 3278215602139223936}
     - targetCorrespondingSourceObject: {fileID: 2851918262581929965, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1643638579419722818}
+      addedObject: {fileID: 6119788256046120875}
   m_SourcePrefab: {fileID: 100100000, guid: 4d73c38547666824d8352bfe1fac3ce3, type: 3}
 --- !u!1 &2826356958559688618 stripped
 GameObject:
@@ -270,9 +274,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dc64d2ada5cfce4c96d6067d98e3fdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogue: {fileID: 11400000, guid: 518324b260ab211489a35b93f11c2afd, type: 2}
+  dialogue: {fileID: 11400000, guid: d99657cbe47157541abef79885fda2c7, type: 2}
   playOnce: 0
---- !u!54 &1643638579419722818
+--- !u!54 &6119788256046120875
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

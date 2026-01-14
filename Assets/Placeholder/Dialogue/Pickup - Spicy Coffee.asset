@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pickup - Spicy Coffee
   m_EditorClassIdentifier: 
   dialogueLines:
-  - Plain <color = red>Spicy</color> Coffee
+  - Plain <color=red>Spicy</color> Coffee
   canBeCancelled: 1
   textSpeed: 45
   voiceClips:

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pickup - Big Decaf
   m_EditorClassIdentifier: 
   dialogueLines:
-  - 'Big <color = blue>Decaf</color> '
+  - 'Big <color=blue>Decaf</color> '
   canBeCancelled: 1
   textSpeed: 45
   voiceClips:

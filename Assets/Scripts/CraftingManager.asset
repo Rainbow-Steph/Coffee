@@ -30,58 +30,58 @@ MonoBehaviour:
     requiredCoffee1: Red Capsule
     requiredCoffee2: Black Capsule
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: 9c802e822dc0be94698bf0a0028e2098, type: 3}
   - recipeName: Spicy Black Coffee
     requiredLiquid: Water
     requiredCoffee1: Black Capsule
     requiredCoffee2: Red Capsule
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: 9c802e822dc0be94698bf0a0028e2098, type: 3}
   - recipeName: Double Spicy Coffee
     requiredLiquid: Water
     requiredCoffee1: Red Capsule
     requiredCoffee2: Red Capsule
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: 186f01d9e258d0c4788ea01e270473c8, type: 3}
   - recipeName: Watered-Down Spicy Coffee
     requiredLiquid: Water
     requiredCoffee1: Blue Capsule
     requiredCoffee2: Red Capsule
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: c965466aef126d0458c106327d896cc2, type: 3}
   - recipeName: Watered-Down Spicy Coffee
     requiredLiquid: Water
     requiredCoffee1: Red Capsule
     requiredCoffee2: Blue Capsule
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: c965466aef126d0458c106327d896cc2, type: 3}
   - recipeName: Watered-Down Black Coffee
     requiredLiquid: Water
     requiredCoffee1: Black Capsule
     requiredCoffee2: Blue Capsule
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: ef2080314f433794da9ab4b60268e24d, type: 3}
   - recipeName: Watered-Down Black Coffee
     requiredLiquid: Water
     requiredCoffee1: Blue Capsule
     requiredCoffee2: Black Capsule
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: ef2080314f433794da9ab4b60268e24d, type: 3}
   - recipeName: Big Decaf
     requiredLiquid: Water
     requiredCoffee1: Blue Capsule
     requiredCoffee2: Blue Capsule
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: deaf81f08bfbbc04cbc4e936f821ffa8, type: 3}
   - recipeName: Decaf
     requiredLiquid: Water
     requiredCoffee1: Blue Capsule
     requiredCoffee2: 
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: 840f8df35d6a2cf4ca0cb4ba7e901b7a, type: 3}
   - recipeName: Spicy Coffee
     requiredLiquid: Water
     requiredCoffee1: Red Capsule
     requiredCoffee2: 
     requiredExtra: 
-    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    resultPrefab: {fileID: 2826356958559688618, guid: 775be14114f941643a7bdfe42b1337db, type: 3}
