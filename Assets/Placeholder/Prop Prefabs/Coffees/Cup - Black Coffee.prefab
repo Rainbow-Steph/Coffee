@@ -231,17 +231,25 @@ MonoBehaviour:
   useEmission: 1
   outlineMaterial: {fileID: 2100000, guid: 8b88ddbfb7526b04dbdfeb09e0644351, type: 2}
   includeChildren: 1
-  floatOnClick: 1
-  floatDistance: 0.5
-  floatSpeed: 5
+  canPickUp: 1
+  holdDistance: 1
+  pickupSpeed: 5
   rotationSpeed: 50
   rotationOffset: {x: 20, y: 5, z: 0}
-  floatOffset: {x: 0.13, y: -0.08, z: 0}
+  holdOffset: {x: 0, y: 0, z: 0}
+  momentumRetention: 0.7
+  keepCollisionsWhileHeld: 1
+  usePhysicsHolding: 1
+  holdForce: 20
+  holdSmoothing: 15
+  useKinematicWhileHeld: 1
+  useContinuousCollision: 1
+  useContinuousSpeculativeForKinematic: 1
   playSoundOnClick: 0
   clickSound: {fileID: 0}
   showDebugInfo: 0
   actionTracker: {fileID: 11400000, guid: 8b6b70bd324f65a409da7df196d2791f, type: 2}
-  itemType: 4
+  itemType: 8
   interactionHandler: {fileID: 0}
   coffeeMaker: {fileID: 0}
   enableBillboard: 0

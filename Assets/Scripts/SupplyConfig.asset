@@ -43,15 +43,15 @@ MonoBehaviour:
     - prefab: {fileID: 6473907668563284820, guid: 91f4de180208362499f91db37b8cdf40, type: 3}
       itemName: Black Capsule
       isAvailable: 1
-      spawnWeight: 0
+      spawnWeight: 33
     - prefab: {fileID: 4561886000510649866, guid: 739de8d631c5240448bba35e0ec06e2d, type: 3}
       itemName: Blue Capsule
       isAvailable: 1
-      spawnWeight: 1
+      spawnWeight: 33
     - prefab: {fileID: 8188550648197490574, guid: cce41932cd235f249884d45d56469b25, type: 3}
       itemName: Red Capsule
       isAvailable: 1
-      spawnWeight: 1
+      spawnWeight: 33
   extrasConfig:
     resourceTypeName: Extras
     debugColor: {r: 0, g: 0, b: 1, a: 1}
