@@ -58,6 +58,9 @@ public class DisplayHandler : MonoBehaviour
 
         // Subscribe to machine contents changes
         actionTracker.onMachineContentsChanged += OnMachineContentsChanged;
+        
+        // Subscribe to liquid amount changes (for water display updates)
+        actionTracker.onLiquidAmountChanged += OnLiquidAmountChanged;
 
         // Initial update
         UpdateAllDisplays(actionTracker.LiquidName, actionTracker.CapsuleAName, 
@@ -69,6 +72,7 @@ public class DisplayHandler : MonoBehaviour
         if (actionTracker != null)
         {
             actionTracker.onMachineContentsChanged -= OnMachineContentsChanged;
+            actionTracker.onLiquidAmountChanged -= OnLiquidAmountChanged;
         }
     }
 
@@ -232,6 +236,20 @@ extraDisplayAssignment = assignment;
             contents.capsuleBName, contents.additiveName);
     }
 
+    /// <summary>
+    /// Called when liquid amount changes - updates water displays
+    /// </summary>
+    private void OnLiquidAmountChanged(int newAmount)
+    {
+        if (showDebugLogs)
+        {
+            Debug.Log($"[DisplayHandler] Liquid amount changed to: {newAmount}");
+        }
+
+        // Update water displays based on new amount
+        UpdateWaterDisplays(actionTracker.LiquidName);
+    }
+
     private void UpdateAllDisplays(string liquidName, string capsuleAName, 
         string capsuleBName, string additiveName)
     {
@@ -245,61 +263,89 @@ extraDisplayAssignment = assignment;
     private void UpdateWaterDisplays(string liquidName)
     {
         System.Text.StringBuilder waterLog = new System.Text.StringBuilder();
-        waterLog.AppendLine("?????????????????????????????????????????????????????????????");
+        waterLog.AppendLine("???????????????????????????????????????????????????????");
         waterLog.AppendLine("?          UPDATE WATER DISPLAYS    ?");
-      waterLog.AppendLine("?????????????????????????????????????????????????????????????");
+        waterLog.AppendLine("???????????????????????????????????????????????????????");
         
-  bool hasWater = !string.IsNullOrEmpty(liquidName);
-        Material targetMaterial = hasWater ? displayConfig.waterFilledMaterial : displayConfig.waterEmptyMaterial;
+        // Get current liquid amount from tracker
+        int liquidAmount = actionTracker != null ? actionTracker.LiquidAmount : 0;
+        bool hasWater = !string.IsNullOrEmpty(liquidName);
 
         waterLog.AppendLine($"\n??? STATE ???");
- waterLog.AppendLine($"  Liquid Name:  {(string.IsNullOrEmpty(liquidName) ? "EMPTY" : liquidName)}");
-        waterLog.AppendLine($"  Has Water:    {hasWater}");
-        waterLog.AppendLine($"  Target Mat:   {(targetMaterial != null ? targetMaterial.name : "NULL")}");
+        waterLog.AppendLine($"  Liquid Name:   {(string.IsNullOrEmpty(liquidName) ? "EMPTY" : liquidName)}");
+        waterLog.AppendLine($"  Liquid Amount: {liquidAmount}");
+        waterLog.AppendLine($"  Has Water:     {hasWater}");
+
+        waterLog.AppendLine($"\n??? DISPLAY LOGIC ???");
+        waterLog.AppendLine($"  Display 1: {(liquidAmount >= 1 ? "FILLED" : "EMPTY")} (requires 1+)");
+        waterLog.AppendLine($"  Display 2: {(liquidAmount >= 2 ? "FILLED" : "EMPTY")} (requires 2+)");
+        waterLog.AppendLine($"  Display 3: {(liquidAmount >= 3 ? "FILLED" : "EMPTY")} (requires 3+)");
 
         waterLog.AppendLine($"\n??? APPLYING TO DISPLAYS ???");
 
-  int successCount = 0;
+        int successCount = 0;
 
-  if (waterDisplay1Assignment?.cachedRenderer != null)
+        // Display 1: Shows filled if liquidAmount >= 1
+        if (waterDisplay1Assignment?.cachedRenderer != null)
         {
-     waterDisplay1Assignment.cachedRenderer.material = targetMaterial;
-    waterLog.AppendLine($"  Display 1: ? Updated");
-       successCount++;
+            Material display1Material = liquidAmount >= 1 ? displayConfig.waterFilledMaterial : displayConfig.waterEmptyMaterial;
+            waterDisplay1Assignment.cachedRenderer.material = display1Material;
+            waterLog.AppendLine($"  Display 1: ? Updated to {(liquidAmount >= 1 ? "FILLED" : "EMPTY")}");
+            successCount++;
         }
- else
-        {
-    waterLog.AppendLine($"  Display 1: ? Renderer null");
-     }
-
-if (waterDisplay2Assignment?.cachedRenderer != null)
-  {
-   waterDisplay2Assignment.cachedRenderer.material = targetMaterial;
-  waterLog.AppendLine($"  Display 2: ? Updated");
-     successCount++;
- }
         else
-   {
-       waterLog.AppendLine($"  Display 2: ? Renderer null");
-     }
-
-        if (waterDisplay3Assignment?.cachedRenderer != null)
-    {
-     waterDisplay3Assignment.cachedRenderer.material = targetMaterial;
-       waterLog.AppendLine($"  Display 3: ? Updated");
-    successCount++;
-  }
-  else
         {
-   waterLog.AppendLine($"  Display 3: ? Renderer null");
- }
+            waterLog.AppendLine($"  Display 1: ? Renderer null");
+        }
 
-     waterLog.AppendLine($"\n??? RESULT ???");
+        // Display 2: Shows filled if liquidAmount >= 2
+        if (waterDisplay2Assignment?.cachedRenderer != null)
+        {
+            Material display2Material = liquidAmount >= 2 ? displayConfig.waterFilledMaterial : displayConfig.waterEmptyMaterial;
+            waterDisplay2Assignment.cachedRenderer.material = display2Material;
+            waterLog.AppendLine($"  Display 2: ? Updated to {(liquidAmount >= 2 ? "FILLED" : "EMPTY")}");
+            successCount++;
+        }
+        else
+        {
+            waterLog.AppendLine($"  Display 2: ? Renderer null");
+        }
+
+        // Display 3: Shows filled if liquidAmount >= 3
+        if (waterDisplay3Assignment?.cachedRenderer != null)
+        {
+            Material display3Material = liquidAmount >= 3 ? displayConfig.waterFilledMaterial : displayConfig.waterEmptyMaterial;
+            waterDisplay3Assignment.cachedRenderer.material = display3Material;
+            waterLog.AppendLine($"  Display 3: ? Updated to {(liquidAmount >= 3 ? "FILLED" : "EMPTY")}");
+            successCount++;
+        }
+        else
+        {
+            waterLog.AppendLine($"  Display 3: ? Renderer null");
+        }
+
+        waterLog.AppendLine($"\n??? RESULT ???");
         waterLog.AppendLine($"  Status: {successCount}/3 displays updated");
-   waterLog.AppendLine($"  State: {(hasWater ? "FILLED" : "EMPTY")}");
-        waterLog.AppendLine($"?????????????????????????????????????????????????????????????");
+        waterLog.AppendLine($"  Liquid Amount: {liquidAmount}");
+        waterLog.AppendLine($"  Visual State: {GetWaterDisplayState(liquidAmount)}");
+        waterLog.AppendLine($"???????????????????????????????????????????????????????");
 
-    Debug.Log(waterLog.ToString());
+        Debug.Log(waterLog.ToString());
+    }
+
+    /// <summary>
+    /// Get a visual representation of water display state
+    /// </summary>
+    private string GetWaterDisplayState(int liquidAmount)
+    {
+        if (liquidAmount >= 3)
+            return "??? (All Full)";
+        else if (liquidAmount == 2)
+            return "??? (2/3 Full)";
+        else if (liquidAmount == 1)
+            return "??? (1/3 Full)";
+        else
+            return "??? (Empty)";
     }
 
     #endregion

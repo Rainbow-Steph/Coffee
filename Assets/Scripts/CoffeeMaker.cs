@@ -11,6 +11,7 @@ public class CoffeeMaker : MonoBehaviour
     [SerializeField] private CraftingManager craftingManager;
     [SerializeField] private SystemMessages systemMessages;
     [SerializeField] private DialogueManager dialogueManager;
+    [SerializeField] private DisplayHandler displayHandler; // NEW: Reference to update water display
 
     [Header("Spawn Settings")]
     [Tooltip("Where to spawn the crafted coffee")]
@@ -154,6 +155,21 @@ public class CoffeeMaker : MonoBehaviour
 
         // Reduce liquid amount by 1
         actionTracker.LiquidAmount--;
+
+        // Update display to show new water amount
+        if (displayHandler != null)
+        {
+            displayHandler.UpdateDisplay();
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"[CoffeeMaker] Updated water display. New liquid amount: {actionTracker.LiquidAmount}");
+            }
+        }
+        else if (showDebugLogs)
+        {
+            Debug.LogWarning("[CoffeeMaker] DisplayHandler not assigned - water display not updated!");
+        }
 
         // Clear capsules and additive from machine
         actionTracker.CapsuleAName = "";

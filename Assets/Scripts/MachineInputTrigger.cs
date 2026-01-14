@@ -125,33 +125,45 @@ public class MachineInputTrigger : MonoBehaviour
     private bool ProcessWaterInput(ClickableObject heldObject)
     {
         // Only accept liquid items
-      if (heldObject.itemType != ItemType.Liquid)
+        if (heldObject.itemType != ItemType.Liquid)
         {
-   if (showDebugInfo)
-{
-         Debug.LogWarning($"[MachineInputTrigger] Water input only accepts Liquid items! Received: {heldObject.itemType}");
-    }
-          return false;
+            if (showDebugInfo)
+            {
+                Debug.LogWarning($"[MachineInputTrigger] Water input only accepts Liquid items! Received: {heldObject.itemType}");
+            }
+            return false;
         }
 
         if (actionTracker == null)
         {
             Debug.LogError("[MachineInputTrigger] PlayerActionTracker not assigned!");
-     return false;
-    }
+            return false;
+        }
 
- // Add water to machine
+        // Add water to machine
         string liquidName = heldObject.gameObject.name;
         actionTracker.LiquidName = liquidName;
-        actionTracker.LiquidAmount++;
-
-        if (showDebugInfo)
-     {
-            Debug.Log($"[MachineInputTrigger] Added {liquidName} to water input. Total liquid: {actionTracker.LiquidAmount}");
+        
+        // Set water to 3 if not already at 3 or more
+        if (actionTracker.LiquidAmount < 3)
+        {
+            actionTracker.LiquidAmount = 3;
+            
+            if (showDebugInfo)
+            {
+                Debug.Log($"[MachineInputTrigger] Added {liquidName} to water input. Water set to: {actionTracker.LiquidAmount}");
+            }
+        }
+        else
+        {
+            if (showDebugInfo)
+            {
+                Debug.Log($"[MachineInputTrigger] Added {liquidName} but water already at {actionTracker.LiquidAmount} (minimum 3 maintained)");
+            }
         }
 
         // Update display if assigned
-   if (displayHandler != null)
+        if (displayHandler != null)
         {
             displayHandler.UpdateDisplay();
         }
