@@ -85,3 +85,9 @@ MonoBehaviour:
     requiredCoffee2: 
     requiredExtra: 
     resultPrefab: {fileID: 2826356958559688618, guid: 775be14114f941643a7bdfe42b1337db, type: 3}
+  - recipeName: Double Black Coffee
+    requiredLiquid: Water
+    requiredCoffee1: Black Capsule
+    requiredCoffee2: Black Capsule
+    requiredExtra: 
+    resultPrefab: {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}

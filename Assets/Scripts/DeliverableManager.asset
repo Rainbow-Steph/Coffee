@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1610d56200ccc9f4ba4247ac3c1c159a, type: 3}
   m_Name: DeliverableManager
   m_EditorClassIdentifier: 
-  rockPrefab: {fileID: 0}
-  coinPrefab: {fileID: 0}
-  billPrefab: {fileID: 0}
+  rockPrefab: {fileID: 2430990525840716182, guid: 2d0d127bb554dc545a586935ca172ef0, type: 3}
+  coinPrefab: {fileID: 2833562335684632184, guid: 1ea39c41699a12d49b0692248a35824b, type: 3}
+  billPrefab: {fileID: 3641288943168497072, guid: d513785511ec01e4cbcc4ad094b809fa, type: 3}
   highSatisfactionRewards:
     rocksRange:
       min: 0
@@ -46,9 +46,47 @@ MonoBehaviour:
       min: 0
       max: 0
   deliveryTargets:
-  - targetName: 
+  - targetName: Black Hand
     targetColor: {r: 0, g: 0, b: 0, a: 0}
     highSatisfactionItems:
-    - {fileID: 0}
-    mediumSatisfactionItems: []
-    lowSatisfactionItems: []
+    - {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    mediumSatisfactionItems:
+    - {fileID: 2826356958559688618, guid: 9c802e822dc0be94698bf0a0028e2098, type: 3}
+    - {fileID: 2826356958559688618, guid: ef2080314f433794da9ab4b60268e24d, type: 3}
+    - {fileID: 2826356958559688618, guid: c49f6b938fc323d41b2bad4d3990e1a1, type: 3}
+    lowSatisfactionItems:
+    - {fileID: 2826356958559688618, guid: deaf81f08bfbbc04cbc4e936f821ffa8, type: 3}
+    - {fileID: 2826356958559688618, guid: 840f8df35d6a2cf4ca0cb4ba7e901b7a, type: 3}
+    - {fileID: 2826356958559688618, guid: 186f01d9e258d0c4788ea01e270473c8, type: 3}
+    - {fileID: 2826356958559688618, guid: 16cd0c2befdaf5e43b96b256932a9cb6, type: 3}
+    - {fileID: 2826356958559688618, guid: c965466aef126d0458c106327d896cc2, type: 3}
+  - targetName: Red Hand
+    targetColor: {r: 0.990566, g: 0.06074228, b: 0.06074228, a: 0}
+    highSatisfactionItems:
+    - {fileID: 2826356958559688618, guid: 186f01d9e258d0c4788ea01e270473c8, type: 3}
+    mediumSatisfactionItems:
+    - {fileID: 2826356958559688618, guid: c965466aef126d0458c106327d896cc2, type: 3}
+    - {fileID: 2826356958559688618, guid: 775be14114f941643a7bdfe42b1337db, type: 3}
+    - {fileID: 2826356958559688618, guid: 9c802e822dc0be94698bf0a0028e2098, type: 3}
+    lowSatisfactionItems:
+    - {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    - {fileID: 2826356958559688618, guid: ef2080314f433794da9ab4b60268e24d, type: 3}
+    - {fileID: 2826356958559688618, guid: deaf81f08bfbbc04cbc4e936f821ffa8, type: 3}
+    - {fileID: 2826356958559688618, guid: c49f6b938fc323d41b2bad4d3990e1a1, type: 3}
+    - {fileID: 2826356958559688618, guid: 840f8df35d6a2cf4ca0cb4ba7e901b7a, type: 3}
+    - {fileID: 2826356958559688618, guid: 16cd0c2befdaf5e43b96b256932a9cb6, type: 3}
+  - targetName: Blue Hand
+    targetColor: {r: 0.058823552, g: 0.3013449, b: 0.99215686, a: 0}
+    highSatisfactionItems:
+    - {fileID: 2826356958559688618, guid: deaf81f08bfbbc04cbc4e936f821ffa8, type: 3}
+    mediumSatisfactionItems:
+    - {fileID: 2826356958559688618, guid: 840f8df35d6a2cf4ca0cb4ba7e901b7a, type: 3}
+    - {fileID: 2826356958559688618, guid: 16cd0c2befdaf5e43b96b256932a9cb6, type: 3}
+    - {fileID: 2826356958559688618, guid: ef2080314f433794da9ab4b60268e24d, type: 3}
+    - {fileID: 2826356958559688618, guid: c965466aef126d0458c106327d896cc2, type: 3}
+    lowSatisfactionItems:
+    - {fileID: 2826356958559688618, guid: 9c802e822dc0be94698bf0a0028e2098, type: 3}
+    - {fileID: 2826356958559688618, guid: a26cd35dc30f36745a5a3ee357ff7957, type: 3}
+    - {fileID: 2826356958559688618, guid: 186f01d9e258d0c4788ea01e270473c8, type: 3}
+    - {fileID: 2826356958559688618, guid: c49f6b938fc323d41b2bad4d3990e1a1, type: 3}
+    - {fileID: 2826356958559688618, guid: 775be14114f941643a7bdfe42b1337db, type: 3}

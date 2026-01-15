@@ -10,11 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d9061886c65cedf4cb28827cfe78754f, type: 3}
-  m_Name: Pickup - Watered-Down Spicy Coffee
+  m_Name: Pickup - Credit Voucher
   m_EditorClassIdentifier: 
   dialogueLines:
-  - Some <b><color=blue>Watered-down</color></b> <b><color=red>Spicy</color></b>
-    Coffee
+  - It's a  <b><color=yellow>Credit Voucher</color></b>
   canBeCancelled: 1
   textSpeed: 45
   voiceClips:

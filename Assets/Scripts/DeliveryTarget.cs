@@ -3,8 +3,8 @@ using UnityEngine;
 /// <summary>
 /// Component to mark GameObjects as delivery targets
 /// Attach to objects that can receive deliveries
+/// Works by detecting when ItemType.Delivery objects enter ANY trigger collider on this GameObject
 /// </summary>
-[RequireComponent(typeof(Collider))]
 public class DeliveryTarget : MonoBehaviour
 {
     [Header("Target Configuration")]
@@ -14,10 +14,6 @@ public class DeliveryTarget : MonoBehaviour
     [Header("References")]
     [Tooltip("Reference to the DeliverableManager")]
     [SerializeField] private DeliverableManager deliverableManager;
-
-    [Header("Delivery Collider")]
-    [Tooltip("Child object with collider for detecting deliveries (auto-finds 'Delivery Collider')")]
-    [SerializeField] private Transform deliveryCollider;
 
     [Header("Spawn Settings")]
     [Tooltip("Where to spawn rewards (defaults to this transform)")]
@@ -54,57 +50,17 @@ public class DeliveryTarget : MonoBehaviour
     [Tooltip("Show debug messages in console")]
     [SerializeField] private bool showDebugInfo = true;
 
-    private Collider triggerCollider;
     private DeliverableManager.DeliveryTarget targetConfig;
 
     private void Start()
     {
-        // Auto-find delivery collider if not assigned
-        if (deliveryCollider == null)
-        {
-            Transform found = transform.Find("Delivery Collider");
-            if (found != null)
-            {
-                deliveryCollider = found;
-                if (showDebugInfo)
-                {
-                    Debug.Log($"[DeliveryTarget] Auto-found 'Delivery Collider' child on {gameObject.name}");
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"[DeliveryTarget] No 'Delivery Collider' child found on {gameObject.name}! Deliveries won't work!");
-            }
-        }
-
-        // Ensure delivery collider is a trigger
-        if (deliveryCollider != null)
-        {
-            triggerCollider = deliveryCollider.GetComponent<Collider>();
-            if (triggerCollider != null)
-            {
-                triggerCollider.isTrigger = true;
-                
-                if (showDebugInfo)
-                {
-                    Debug.Log($"[DeliveryTarget] {gameObject.name} delivery collider set as trigger");
-                }
-            }
-            else
-            {
-                Debug.LogError($"[DeliveryTarget] Delivery Collider on {gameObject.name} has no Collider component!");
-            }
-        }
-
         // Auto-find deliverable manager if not assigned
         if (deliverableManager == null)
         {
-            // Try to find in Resources folder
             deliverableManager = Resources.Load<DeliverableManager>("DeliverableManager");
             
             if (deliverableManager == null)
             {
-                // Try to find any instance
                 deliverableManager = FindObjectOfType<DeliverableManager>();
             }
 
@@ -135,39 +91,76 @@ public class DeliveryTarget : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Only process if this is the delivery collider
-        if (deliveryCollider != null && other.transform != deliveryCollider)
-            return;
-
-        // Check if the entering object is a held ClickableObject
+        // Get the ClickableObject from what entered the trigger
         ClickableObject clickableObject = other.GetComponent<ClickableObject>();
         
-        if (clickableObject == null)
+        // Determine if ProcessDelivery will be called (check all conditions upfront)
+        bool willProcessDelivery = false;
+        string skipReason = "";
+        
+        // Check 1: Has ClickableObject?
+        bool hasClickableObject = (clickableObject != null);
+        
+        // Check 2: Is Delivery type?
+        bool isDeliveryType = hasClickableObject && clickableObject.itemType == ItemType.Delivery;
+        
+        // Check 3: Is being held?
+        bool isBeingHeld = hasClickableObject && ClickableObject.IsAnyItemHeld && ClickableObject.GetHeldObject() == clickableObject;
+        
+        // Get satisfaction level early (if possible)
+        SatisfactionLevel satisfactionLevel = SatisfactionLevel.None;
+        if (targetConfig != null && hasClickableObject)
         {
-            if (showDebugInfo)
-            {
-                Debug.Log($"[DeliveryTarget] Object {other.gameObject.name} has no ClickableObject component");
-            }
-            return;
+            satisfactionLevel = targetConfig.GetSatisfactionLevel(clickableObject.gameObject);
+        }
+        
+        // Determine if all checks pass
+        if (hasClickableObject && isDeliveryType && isBeingHeld)
+        {
+            willProcessDelivery = true;
+        }
+        else
+        {
+            // Determine skip reason
+            if (!hasClickableObject)
+                skipReason = "No ClickableObject component";
+            else if (!isDeliveryType)
+                skipReason = "Not Delivery item type";
+            else if (!isBeingHeld)
+                skipReason = "Not being held";
+        }
+        
+        // Debug: Show all trigger events with comprehensive information
+        if (showDebugInfo)
+        {
+            Debug.Log($"[DeliveryTarget - {targetName}] ??? TRIGGER ENTERED ???\n" +
+                     $"  Object: {other.gameObject.name}\n" +
+                     $"  Layer: {LayerMask.LayerToName(other.gameObject.layer)}\n" +
+                     $"  Has Rigidbody: {(other.attachedRigidbody != null ? "Yes" : "No")}\n" +
+                     $"  Collider Type: {other.GetType().Name}\n" +
+                     $"  Is ClickableObject: {(hasClickableObject ? "YES" : "NO")}\n" +
+                     $"  Item Type: {(hasClickableObject ? clickableObject.itemType.ToString() : "N/A")}\n" +
+                     $"  Is Being Held: {(isBeingHeld ? "YES" : "NO")}\n" +
+                     $"  Satisfaction Level: {satisfactionLevel}\n" +
+                     $"  ProcessDelivery() Called: {(willProcessDelivery ? "YES" : "NO")}" +
+                     (willProcessDelivery ? "" : $"\n  Skip Reason: {skipReason}"));
         }
 
-        // Only process if the object is currently being held
-        if (!ClickableObject.IsAnyItemHeld || ClickableObject.GetHeldObject() != clickableObject)
+        // Validate checks in order
+        if (!hasClickableObject)
         {
-            if (showDebugInfo)
-            {
-                Debug.Log($"[DeliveryTarget] Object {other.gameObject.name} is not being held");
-            }
             return;
         }
 
         // Only process delivery items
-        if (clickableObject.itemType != ItemType.Delivery)
+        if (!isDeliveryType)
         {
-            if (showDebugInfo)
-            {
-                Debug.LogWarning($"[DeliveryTarget] Object {other.gameObject.name} is not a Delivery item! Type: {clickableObject.itemType}");
-            }
+            return;
+        }
+
+        // Only process if the object is currently being held
+        if (!isBeingHeld)
+        {
             return;
         }
 
@@ -384,12 +377,6 @@ public class DeliveryTarget : MonoBehaviour
     {
         bool valid = true;
 
-        if (deliveryCollider == null)
-        {
-            Debug.LogError($"[DeliveryTarget] No delivery collider assigned on {gameObject.name}!");
-            valid = false;
-        }
-
         if (deliverableManager == null)
         {
             Debug.LogError($"[DeliveryTarget] DeliverableManager not assigned on {gameObject.name}!");
@@ -422,51 +409,5 @@ public class DeliveryTarget : MonoBehaviour
             return false;
 
         return targetConfig.GetSatisfactionLevel(item) != SatisfactionLevel.None;
-    }
-
-    // Visual helper in editor
-    private void OnDrawGizmos()
-    {
-        if (deliveryCollider != null)
-        {
-            Gizmos.color = new Color(0f, 1f, 0f, 0.3f);
-            Gizmos.matrix = deliveryCollider.localToWorldMatrix;
-            
-            Collider col = deliveryCollider.GetComponent<Collider>();
-            if (col is BoxCollider)
-            {
-                BoxCollider box = col as BoxCollider;
-                Gizmos.DrawCube(box.center, box.size);
-            }
-            else if (col is SphereCollider)
-            {
-                SphereCollider sphere = col as SphereCollider;
-                Gizmos.DrawSphere(sphere.center, sphere.radius);
-            }
-        }
-
-        // Draw spawn point
-        if (rewardSpawnPoint != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(rewardSpawnPoint.position, 0.2f);
-        }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        // Draw delivery zone more prominently when selected
-        if (deliveryCollider != null)
-        {
-            Gizmos.color = new Color(0f, 1f, 0f, 0.5f);
-            Gizmos.matrix = deliveryCollider.localToWorldMatrix;
-            
-            Collider col = deliveryCollider.GetComponent<Collider>();
-            if (col is BoxCollider)
-            {
-                BoxCollider box = col as BoxCollider;
-                Gizmos.DrawWireCube(box.center, box.size);
-            }
-        }
     }
 }

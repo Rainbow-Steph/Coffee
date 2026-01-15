@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pickup - Double Black Coffee
   m_EditorClassIdentifier: 
   dialogueLines:
-  - Strong <color=black>Double Black</color> Coffee
+  - Strong <b><color=black>Double Black</color></b> Coffee
   canBeCancelled: 1
   textSpeed: 45
   voiceClips:
