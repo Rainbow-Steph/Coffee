@@ -15,9 +15,32 @@ public class DeliveryTarget : MonoBehaviour
     [Tooltip("Reference to the DeliverableManager")]
     [SerializeField] private DeliverableManager deliverableManager;
 
+    [Header("Animation Settings")]
+    [Tooltip("Direction to move the target (normalized automatically)")]
+    [SerializeField] private Vector3 moveDirection = Vector3.back;
+    
+    [Tooltip("How far to move the target")]
+    [SerializeField] private float moveDistance = 0.5f;
+    
+    [Tooltip("How fast to move the target")]
+    [SerializeField] private float moveSpeed = 2f;
+    
+    [Tooltip("Delay before spawning rewards after animation")]
+    [SerializeField] private float rewardSpawnDelay = 1f;
+    
+    [Tooltip("Make target disappear after spawning rewards (no return animation)")]
+    [SerializeField] private bool disappearAfterRewards = true;
+
     [Header("Spawn Settings")]
     [Tooltip("Where to spawn rewards (defaults to this transform)")]
     [SerializeField] private Transform rewardSpawnPoint;
+    
+    [Tooltip("Base direction for reward launch (normalized automatically)")]
+    [SerializeField] private Vector3 rewardLaunchDirection = Vector3.up;
+    
+    [Tooltip("Additional forward component for reward direction")]
+    [Range(0f, 1f)]
+    [SerializeField] private float rewardForwardInfluence = 0.3f;
 
     [Tooltip("Launch force for spawned rewards")]
     [SerializeField] private float rewardLaunchForce = 3f;
@@ -51,9 +74,15 @@ public class DeliveryTarget : MonoBehaviour
     [SerializeField] private bool showDebugInfo = true;
 
     private DeliverableManager.DeliveryTarget targetConfig;
+    private ClickableObject pendingDelivery = null;
+    private Vector3 originalPosition;
+    private bool isProcessingDelivery = false;
 
     private void Start()
     {
+        // Store original position for animation
+        originalPosition = transform.position;
+        
         // Auto-find deliverable manager if not assigned
         if (deliverableManager == null)
         {
@@ -91,11 +120,15 @@ public class DeliveryTarget : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // Don't process if already handling a delivery
+        if (isProcessingDelivery)
+            return;
+            
         // Get the ClickableObject from what entered the trigger
         ClickableObject clickableObject = other.GetComponent<ClickableObject>();
         
-        // Determine if ProcessDelivery will be called (check all conditions upfront)
-        bool willProcessDelivery = false;
+        // Determine if we should track this delivery
+        bool willTrackDelivery = false;
         string skipReason = "";
         
         // Check 1: Has ClickableObject?
@@ -117,7 +150,8 @@ public class DeliveryTarget : MonoBehaviour
         // Determine if all checks pass
         if (hasClickableObject && isDeliveryType && isBeingHeld)
         {
-            willProcessDelivery = true;
+            willTrackDelivery = true;
+            pendingDelivery = clickableObject; // Track this for release detection
         }
         else
         {
@@ -142,41 +176,67 @@ public class DeliveryTarget : MonoBehaviour
                      $"  Item Type: {(hasClickableObject ? clickableObject.itemType.ToString() : "N/A")}\n" +
                      $"  Is Being Held: {(isBeingHeld ? "YES" : "NO")}\n" +
                      $"  Satisfaction Level: {satisfactionLevel}\n" +
-                     $"  ProcessDelivery() Called: {(willProcessDelivery ? "YES" : "NO")}" +
-                     (willProcessDelivery ? "" : $"\n  Skip Reason: {skipReason}"));
+                     $"  Tracking for Release: {(willTrackDelivery ? "YES" : "NO")}" +
+                     (willTrackDelivery ? "" : $"\n  Skip Reason: {skipReason}"));
         }
-
-        // Validate checks in order
-        if (!hasClickableObject)
+    }
+    
+    private void OnTriggerStay(Collider other)
+    {
+        // Check if we're tracking a pending delivery and player has released it
+        if (pendingDelivery != null && !isProcessingDelivery)
         {
-            return;
+            ClickableObject clickableObject = other.GetComponent<ClickableObject>();
+            
+            // Check if this is our pending delivery and it's no longer being held
+            if (clickableObject == pendingDelivery)
+            {
+                bool isStillHeld = ClickableObject.IsAnyItemHeld && ClickableObject.GetHeldObject() == clickableObject;
+                
+                if (!isStillHeld)
+                {
+                    // Player released the coffee in the delivery zone!
+                    if (showDebugInfo)
+                    {
+                        Debug.Log($"[DeliveryTarget - {targetName}] Coffee released in delivery zone! Processing...");
+                    }
+                    
+                    StartCoroutine(ProcessDeliverySequence(pendingDelivery));
+                    pendingDelivery = null;
+                }
+            }
         }
-
-        // Only process delivery items
-        if (!isDeliveryType)
+    }
+    
+    private void OnTriggerExit(Collider other)
+    {
+        // If the pending delivery leaves the zone, clear it
+        if (pendingDelivery != null)
         {
-            return;
+            ClickableObject clickableObject = other.GetComponent<ClickableObject>();
+            if (clickableObject == pendingDelivery)
+            {
+                if (showDebugInfo)
+                {
+                    Debug.Log($"[DeliveryTarget - {targetName}] Pending delivery left the zone");
+                }
+                pendingDelivery = null;
+            }
         }
-
-        // Only process if the object is currently being held
-        if (!isBeingHeld)
-        {
-            return;
-        }
-
-        // Process the delivery
-        ProcessDelivery(clickableObject);
     }
 
     /// <summary>
-    /// Process a delivery attempt
+    /// Process delivery sequence with animation
     /// </summary>
-    private void ProcessDelivery(ClickableObject deliveredObject)
+    private System.Collections.IEnumerator ProcessDeliverySequence(ClickableObject deliveredObject)
     {
+        isProcessingDelivery = true;
+        
         if (deliverableManager == null || targetConfig == null)
         {
             Debug.LogError($"[DeliveryTarget] Cannot process delivery - missing manager or config!");
-            return;
+            isProcessingDelivery = false;
+            yield break;
         }
 
         // Get the prefab reference from the delivered object
@@ -185,48 +245,142 @@ public class DeliveryTarget : MonoBehaviour
         // Determine satisfaction level
         SatisfactionLevel satisfaction = targetConfig.GetSatisfactionLevel(deliveredPrefab);
 
-        if (showDebugInfo)
-        {
-            Debug.Log($"[DeliveryTarget] Delivered {deliveredPrefab.name} to {targetName}. Satisfaction: {satisfaction}");
-        }
-
         // Handle delivery result
         if (satisfaction != SatisfactionLevel.None)
         {
-            HandleSuccessfulDelivery(deliveredObject, satisfaction);
+            yield return StartCoroutine(HandleSuccessfulDeliverySequence(deliveredObject, satisfaction));
         }
         else
         {
             HandleFailedDelivery(deliveredObject);
         }
+        
+        isProcessingDelivery = false;
     }
 
     /// <summary>
-    /// Handle successful delivery
+    /// Handle successful delivery with animation and consolidated debug
     /// </summary>
-    private void HandleSuccessfulDelivery(ClickableObject deliveredObject, SatisfactionLevel satisfaction)
+    private System.Collections.IEnumerator HandleSuccessfulDeliverySequence(ClickableObject deliveredObject, SatisfactionLevel satisfaction)
     {
+        // Calculate rewards BEFORE animation for debug message
+        DeliverableManager.SatisfactionRewardRanges rewardRanges = deliverableManager.GetRewardRanges(satisfaction);
+        
+        int rockCount = 0;
+        int coinCount = 0;
+        int billCount = 0;
+        
+        if (rewardRanges != null)
+        {
+            rockCount = rewardRanges.rocksRange.GetRandomAmount();
+            coinCount = rewardRanges.coinsRange.GetRandomAmount();
+            billCount = rewardRanges.billsRange.GetRandomAmount();
+        }
+        
+        // CONSOLIDATED DEBUG MESSAGE
         if (showDebugInfo)
         {
-            Debug.Log($"[DeliveryTarget] ? Successful delivery! Satisfaction: {satisfaction}");
+            Debug.Log($"[DeliveryTarget - {targetName}] ??? PROCESSING DELIVERY ???\n" +
+                     $"  Delivered: {deliveredObject.gameObject.name}\n" +
+                     $"  Satisfaction: {satisfaction}\n" +
+                     $"  Result: ? Successful Delivery!\n" +
+                     $"  Rewards: {rockCount} rocks, {coinCount} coins, {billCount} bills\n" +
+                     $"  Animation: Move {moveDirection.normalized} by {moveDistance}m\n" +
+                     $"  Disappear After: {(disappearAfterRewards ? "YES" : "NO")}");
         }
-
-        // Spawn rewards
-        SpawnRewards(satisfaction);
-
-        // Play success visual/audio feedback
-        if (deliverySuccessParticles != null)
-        {
-            deliverySuccessParticles.Play();
-        }
-
+        
+        // Play success audio immediately
         if (audioSource != null && successSound != null)
         {
             audioSource.PlayOneShot(successSound);
         }
-
+        
         // Destroy the delivered object
         Destroy(deliveredObject.gameObject);
+        
+        // Animate target in configured direction
+        Vector3 normalizedDirection = moveDirection.normalized;
+        Vector3 targetPosition = originalPosition + (normalizedDirection * moveDistance);
+        float moveTime = moveDistance / moveSpeed;
+        float elapsed = 0f;
+        
+        while (elapsed < moveTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / moveTime;
+            transform.position = Vector3.Lerp(originalPosition, targetPosition, t);
+            yield return null;
+        }
+        
+        transform.position = targetPosition;
+        
+        // Wait before spawning rewards
+        yield return new WaitForSeconds(rewardSpawnDelay);
+        
+        // Spawn rewards
+        for (int i = 0; i < rockCount; i++)
+        {
+            SpawnRewardItem(deliverableManager.rockPrefab, "Rock");
+        }
+        
+        for (int i = 0; i < coinCount; i++)
+        {
+            SpawnRewardItem(deliverableManager.coinPrefab, "Coin");
+        }
+        
+        for (int i = 0; i < billCount; i++)
+        {
+            SpawnRewardItem(deliverableManager.billPrefab, "Bill");
+        }
+        
+        // Play success visual feedback
+        if (deliverySuccessParticles != null)
+        {
+            deliverySuccessParticles.Play();
+        }
+        
+        // Handle post-reward behavior
+        if (disappearAfterRewards)
+        {
+            // Disappear: disable renderers and colliders
+            Renderer[] renderers = GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in renderers)
+            {
+                renderer.enabled = false;
+            }
+            
+            Collider[] colliders = GetComponentsInChildren<Collider>();
+            foreach (Collider collider in colliders)
+            {
+                collider.enabled = false;
+            }
+            
+            if (showDebugInfo)
+            {
+                Debug.Log($"[DeliveryTarget - {targetName}] Target disappeared after spawning rewards");
+            }
+        }
+        else
+        {
+            // Return to original position
+            elapsed = 0f;
+            Vector3 currentPos = transform.position;
+            
+            while (elapsed < moveTime)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / moveTime;
+                transform.position = Vector3.Lerp(currentPos, originalPosition, t);
+                yield return null;
+            }
+            
+            transform.position = originalPosition;
+            
+            if (showDebugInfo)
+            {
+                Debug.Log($"[DeliveryTarget - {targetName}] Target returned to original position");
+            }
+        }
     }
 
     /// <summary>
@@ -236,7 +390,7 @@ public class DeliveryTarget : MonoBehaviour
     {
         if (showDebugInfo)
         {
-            Debug.LogWarning($"[DeliveryTarget] ? Failed delivery! {deliveredObject.gameObject.name} is not accepted by {targetName}");
+            Debug.LogWarning($"[DeliveryTarget - {targetName}] ? Failed delivery! {deliveredObject.gameObject.name} is not accepted by {targetName}");
         }
 
         // Play failure visual/audio feedback
@@ -251,46 +405,6 @@ public class DeliveryTarget : MonoBehaviour
         }
 
         // Don't destroy the object - let player try elsewhere
-    }
-
-    /// <summary>
-    /// Spawn rewards based on satisfaction level
-    /// </summary>
-    private void SpawnRewards(SatisfactionLevel satisfaction)
-    {
-        DeliverableManager.SatisfactionRewardRanges rewardRanges = deliverableManager.GetRewardRanges(satisfaction);
-        
-        if (rewardRanges == null)
-        {
-            Debug.LogWarning($"[DeliveryTarget] No reward ranges configured for {satisfaction} satisfaction!");
-            return;
-        }
-
-        // Spawn rocks using shared prefab
-        int rockCount = rewardRanges.rocksRange.GetRandomAmount();
-        for (int i = 0; i < rockCount; i++)
-        {
-            SpawnRewardItem(deliverableManager.rockPrefab, "Rock");
-        }
-
-        // Spawn coins using shared prefab
-        int coinCount = rewardRanges.coinsRange.GetRandomAmount();
-        for (int i = 0; i < coinCount; i++)
-        {
-            SpawnRewardItem(deliverableManager.coinPrefab, "Coin");
-        }
-
-        // Spawn bills using shared prefab
-        int billCount = rewardRanges.billsRange.GetRandomAmount();
-        for (int i = 0; i < billCount; i++)
-        {
-            SpawnRewardItem(deliverableManager.billPrefab, "Bill");
-        }
-
-        if (showDebugInfo)
-        {
-            Debug.Log($"[DeliveryTarget] Spawned rewards: {rockCount} rocks, {coinCount} coins, {billCount} bills");
-        }
     }
 
     /// <summary>
@@ -319,9 +433,10 @@ public class DeliveryTarget : MonoBehaviour
         Rigidbody rb = reward.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            // Calculate launch direction
-            Vector3 launchDirection = Vector3.up + rewardSpawnPoint.forward * 0.3f;
-            launchDirection.Normalize();
+            // Calculate launch direction using configurable base direction and forward influence
+            Vector3 baseDirection = rewardLaunchDirection.normalized;
+            Vector3 forwardComponent = rewardSpawnPoint.forward * rewardForwardInfluence;
+            Vector3 launchDirection = (baseDirection + forwardComponent).normalized;
 
             // Add random variation if enabled
             if (addRandomVariation && maxRandomAngle > 0)
